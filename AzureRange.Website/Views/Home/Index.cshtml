@@ -1,0 +1,22 @@
+﻿@{
+    ViewBag.Title = "Azure Range- BETA";
+}
+@using AzureRange
+
+<div>
+    <h1>Azure Range - BETA</h1>
+
+    <p>
+        Processed <b>@(((List<IpRange>)ViewData["Ranges"]).Count())</b> Ranges from <a href="https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653">Microsoft Azure Datacenter IP Ranges</a>
+    </p>
+    <p>
+        Found minimum of <b>@Model.Count</b> complementary subnets
+    </p>
+    
+    <div>
+        @foreach (AzureRange.IpRange range in Model)
+        {
+            @range.ToString();<br />
+        }
+    </div>
+</div>
