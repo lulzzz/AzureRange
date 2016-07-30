@@ -8,7 +8,7 @@ namespace AzureRange.Common.Test
     [TestClass]
     public class BasicTests
     {
-        private List<IpRange> _downloadedContent;
+        private List<IPPrefix> _downloadedContent;
 
         [TestInitialize]
         public void Initialize()
@@ -17,20 +17,20 @@ namespace AzureRange.Common.Test
         }
 
         [TestMethod]
-        public void IpRangeTest()
+        public void IPPrefixTest()
         {
-            var testIpRange = new IpRange("NA", "192.168.0.1/24");
-            Assert.AreEqual(testIpRange.ReadableIP, "192.168.0.1");
-            Assert.AreEqual(testIpRange.Mask, 24);
+            var testIPPrefix = new IPPrefix("NA", "192.168.0.1/24");
+            Assert.AreEqual(testIPPrefix.ReadableIP, "192.168.0.1");
+            Assert.AreEqual(testIPPrefix.Mask, 24);
         }
 
         [TestMethod]
         public void BetweenSimpleTest()
         {
-            var lowerBound = new IpRange("na", "192.168.0.0/24");
-            var upperBound = new IpRange("na", "192.168.2.0/24");
+            var lowerBound = new IPPrefix("na", "192.168.0.0/24");
+            var upperBound = new IPPrefix("na", "192.168.2.0/24");
 
-            var result = Generator.GetSubnetsBetween(lowerBound, upperBound);
+            var result = Generator.GetPrefixesBetween(lowerBound, upperBound);
             Assert.AreEqual(result.ReadableIP, "192.168.1.0");
             Assert.AreEqual(result.Mask, 24);
         }
@@ -38,18 +38,18 @@ namespace AzureRange.Common.Test
         [TestMethod]
         public void BetweenTwoSubnetTest()
         {
-            var lowerBound = new IpRange("na", "192.168.0.0/24");
-            var upperBound = new IpRange("na", "192.168.3.0/24");
+            var lowerBound = new IPPrefix("na", "192.168.0.0/24");
+            var upperBound = new IPPrefix("na", "192.168.3.0/24");
 
-            var result = Generator.GetSubnetsBetween(lowerBound, upperBound);
+            var result = Generator.GetPrefixesBetween(lowerBound, upperBound);
             Assert.AreEqual(result.ReadableIP, "192.168.2.0");
             Assert.AreEqual(result.Mask, 24);
 
-            result = Generator.GetSubnetsBetween(lowerBound, result);
+            result = Generator.GetPrefixesBetween(lowerBound, result);
             Assert.AreEqual(result.ReadableIP, "192.168.1.0");
             Assert.AreEqual(result.Mask, 24);
 
-            result = Generator.GetSubnetsBetween(lowerBound, result);
+            result = Generator.GetPrefixesBetween(lowerBound, result);
             Assert.IsNull(result);
         }
 
@@ -81,12 +81,12 @@ namespace AzureRange.Common.Test
             var results = Generator.Not(_downloadedContent);
             results.AddRange(_downloadedContent);
 
-            IpRange previousRange = null;
-            foreach(var range in results.OrderBy(t => t.NetworkDecimal))
+            IPPrefix previousRange = null;
+            foreach(var range in results.OrderBy(t => t.FirstIP))
             {
                 if (previousRange != null)
                 {
-                    Assert.AreEqual(previousRange.LastIp + 1, range.NetworkDecimal);
+                    Assert.AreEqual(previousRange.LastIP + 1, range.FirstIP);
                 }
                 previousRange = range;
             }

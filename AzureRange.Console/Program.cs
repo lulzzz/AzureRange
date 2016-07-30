@@ -15,8 +15,13 @@ namespace AzureRange.Console
     {
         static void Main(string[] args)
         {
-            var ranges = Downloader.Download();
-            var results = Generator.Not(ranges);
+            // Load the XML file into ranges
+            var ipPrefixes = Downloader.Download();
+            // ADD THE BASIC PRIVATE NETWORKS to the list, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 224.0.0.0/3
+            // Order the ranges by increasing network ID
+            var results = Generator.Not(ipPrefixes);
+            // Extract a gap
+            
 
             Debugger.Break();
         }

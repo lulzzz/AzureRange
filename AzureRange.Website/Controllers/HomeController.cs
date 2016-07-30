@@ -20,6 +20,8 @@ namespace AzureRange.Website.Controllers
         {
             get
             {
+                //throw ("Test");
+
                 return lazyConnection.Value;
             }
         }
@@ -35,7 +37,7 @@ namespace AzureRange.Website.Controllers
                 db.StringSet("ranges", rangesRaw);
             }
 
-            var ranges = JsonConvert.DeserializeObject<List<IpRange>>(rangesRaw);
+            var ranges = JsonConvert.DeserializeObject<List<IPPrefix>>(rangesRaw);
             var results = Generator.Not(ranges);
 
             ViewData["ranges"] = ranges;
