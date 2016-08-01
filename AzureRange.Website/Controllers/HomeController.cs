@@ -27,15 +27,18 @@ namespace AzureRange.Website.Controllers
         }
         public ActionResult Index()
         {
+            // Variables defenition
             var db = Connection.GetDatabase();
             string strJsonIPPrefixList;// = db.StringGet("ranges");
             //List<IPPrefix> IPPrefixList;
             List<IPPrefix> IPPrefixesInput;
             List<IPPrefix> IPPrefixesOutput;
 
+            //Code logic
             //if (string.IsNullOrEmpty(strJsonIPPrefixList))
             if (true)
             {
+                // Load into IPPrefixesInput the list of prefixes to find complement for.
                 IPPrefixesInput = Downloader.Download();
                 IPPrefixesInput.Add(new IPPrefix("0.0.0.0/8"));
                 IPPrefixesInput.Add(new IPPrefix("10.0.0.0/8"));
@@ -49,9 +52,9 @@ namespace AzureRange.Website.Controllers
             }
 
             var ranges = JsonConvert.DeserializeObject<List<IPPrefix>>(strJsonIPPrefixList);
-            IPPrefixesOutput = Generator.Not(ranges);
+            IPPrefixesOutput = Generator.Not(IPPrefixesInput); //*ranges)
 
-            ViewData["IPPrefix"] = ranges;
+            ViewData["IPPrefixInput"] = IPPrefixesInput; //(ranges)
             return View(IPPrefixesOutput);
         }
     }
