@@ -10,28 +10,32 @@ namespace AzureRange
     {
         public static List<IPPrefix> Not(List<IPPrefix> p_PrefixList)
         {
-            var l_complementPrefixList = new List<IPPrefix>();
+            //variable declaration
+            List<IPPrefix> l_complementPrefixList = new List<IPPrefix>();
+            IPPrefix l_previousPrefix;
+            
             // Order the prefix list in numeric order
-            IPPrefix l_previousPrefix = p_PrefixList.OrderBy(r => r.FirstIP).First();
+            l_previousPrefix = p_PrefixList.OrderBy(r => r.FirstIP).First();
+            
             // For each prefix, find the gap... 
-            foreach (var l_prefix in p_PrefixList.OrderBy(r => r.FirstIP))
+            foreach (IPPrefix l_currentPrefix in p_PrefixList.OrderBy(r => r.FirstIP))
             {
                 if (l_previousPrefix != null)
                 {
-                    var l_complementPrefix = ProcessGap(l_previousPrefix, l_prefix);
+                    var l_complementPrefix = ProcessGap(l_previousPrefix, l_currentPrefix);
                     if (l_complementPrefix != null)
                         l_complementPrefixList.AddRange(l_complementPrefix);
                 }
-                l_previousPrefix = l_prefix;
+                l_previousPrefix = l_currentPrefix;
             }
             return l_complementPrefixList.OrderBy(r => r.FirstIP).ToList();
         }
-        public static List<IPPrefix> ProcessGap(IPPrefix p_Prefix_PreviousPrefix, IPPrefix p_Prefix)
+        public static List<IPPrefix> ProcessGap(IPPrefix p_Prefix_PreviousPrefix, IPPrefix p_CurrentPrefix)
         {
             var l_PrefixListGap = new List<IPPrefix>();
 
             // Trouver le premier gap valable pour l'écart à combler
-            var l_PrefixGap = GetPrefixesBetween(p_Prefix_PreviousPrefix, p_Prefix);
+            var l_PrefixGap = GetPrefixesBetween(p_Prefix_PreviousPrefix, p_CurrentPrefix);
 
             // Si aucun prefixe de trouve, on retourne null
             if (l_PrefixGap == null)
@@ -51,15 +55,16 @@ namespace AzureRange
 
         public static IPPrefix GetPrefixesBetween(IPPrefix p_Prefix_LowerBound, IPPrefix p_Prefix_UpperBound)
         {
-            var l_int_lastIPInBetween = p_Prefix_UpperBound.FirstIP - 1;
+            UInt32 l_int_lastIPInBetween = p_Prefix_UpperBound.FirstIP - 1;
             IPPrefix l_Prefix_lastNetwork = null;               // variable used to identify the subnet searched
 
             // Validation pour chaque masque potentiel (/32, /31, /30, etc.)
-            for (var i = 32; i > 0; i--)
+            for (short i = 32; i > 0; i--)
             {
-                var l_long_mask = (long)Math.Pow(2, i) - 1;
-                var l_long_shiftedMask = l_long_mask << 32 - i;
-                var l_IPPrefix_TempNetwork = new IPPrefix(l_int_lastIPInBetween & l_long_shiftedMask, i);
+                //var l_long_maskBits = (long)Math.Pow(2, i) - 1;
+                UInt32 l_long_maskBits = ((UInt32)Math.Pow(2, i) - 1) << (32 - i);
+                var l_IPPrefix_TempNetwork = new IPPrefix(l_int_lastIPInBetween & l_long_maskBits, i);
+                //var int toto = sizeof(int);
 
                 // Valide si le prefixe temporaire trouve d
                 if (!(

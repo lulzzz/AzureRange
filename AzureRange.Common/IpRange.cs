@@ -13,12 +13,26 @@ namespace AzureRange
         {
             //Pourquoi ce constructeur
         }
-        public IPPrefix(long pLongNetwork, int pIntMask)
+        public IPPrefix(UInt32 pUInt32_Network, int pInt_Mask)
         {
-            FirstIP = pLongNetwork;
-            Mask = pIntMask;
+            FirstIP = pUInt32_Network;
+            Mask = pInt_Mask;
         }
 
+        public IPPrefix (string pStrRawPrefix)
+        {
+            RawPrefix = pStrRawPrefix;
+            RawPrefixSubnet = RawPrefix.Substring(0, RawPrefix.IndexOf("/"));
+
+            Mask = Convert.ToInt32(RawPrefix.Substring(RawPrefix.IndexOf("/") + 1));
+
+            var subnetParts = RawPrefixSubnet.Split('.');
+            UInt32 subnetDecimal = (UInt32)Convert.ToInt32(subnetParts[0]) * 256 * 256 * 256;
+            subnetDecimal += (UInt32)Convert.ToInt32(subnetParts[1]) * 256 * 256;
+            subnetDecimal += (UInt32)Convert.ToInt32(subnetParts[2]) * 256;
+            subnetDecimal += (UInt32)Convert.ToInt32(subnetParts[3]);
+            FirstIP = subnetDecimal;
+        }
         public IPPrefix (string pStrRegion, string pStrRawPrefix)
         {
             Region = pStrRegion;
@@ -28,24 +42,24 @@ namespace AzureRange
             Mask = Convert.ToInt32(RawPrefix.Substring(RawPrefix.IndexOf("/")+1));
 
             var subnetParts = RawPrefixSubnet.Split('.');
-            long subnetDecimal = (long)Convert.ToInt32(subnetParts[0]) * 256 * 256 * 256;
-            subnetDecimal += (long)Convert.ToInt32(subnetParts[1]) * 256 * 256;
-            subnetDecimal += (long)Convert.ToInt32(subnetParts[2]) * 256;
-            subnetDecimal += (long)Convert.ToInt32(subnetParts[3]);
+            UInt32 subnetDecimal = (UInt32)Convert.ToInt32(subnetParts[0]) * 256 * 256 * 256;
+            subnetDecimal += (UInt32)Convert.ToInt32(subnetParts[1]) * 256 * 256;
+            subnetDecimal += (UInt32)Convert.ToInt32(subnetParts[2]) * 256;
+            subnetDecimal += (UInt32)Convert.ToInt32(subnetParts[3]);
             FirstIP = subnetDecimal;
         }
 
         public string Region { get; set; }
         public string RawPrefix { get; set; }
         public string RawPrefixSubnet { get; set; }
-        public long FirstIP { get; set; }
+        public UInt32 FirstIP { get; set; }
         public int Mask { get; set; }
 
-        public long LastIP
+        public UInt32 LastIP
         {
             get
             {
-                return FirstIP + (long)Math.Pow(2, (32 - Mask)) - 1;
+                return FirstIP + (UInt32)Math.Pow(2, (32 - Mask)) - 1;
             }
         }
 
@@ -67,6 +81,12 @@ namespace AzureRange
         public override string ToString()
         {
             return ReadableIP + "/" + Mask;
+        }
+
+        public string ToStringLongMask()
+        {
+            //return format 10.10.10.0 255.255.255.0
+            return ReadableIP + " " + "255.255.255.0";
         }
 
         public bool Equals(IPPrefix other)

@@ -28,20 +28,31 @@ namespace AzureRange.Website.Controllers
         public ActionResult Index()
         {
             var db = Connection.GetDatabase();
-            string rangesRaw = db.StringGet("ranges");
+            string strJsonIPPrefixList;// = db.StringGet("ranges");
+            //List<IPPrefix> IPPrefixList;
+            List<IPPrefix> IPPrefixesInput;
+            List<IPPrefix> IPPrefixesOutput;
 
-            if (string.IsNullOrEmpty(rangesRaw))
+            //if (string.IsNullOrEmpty(strJsonIPPrefixList))
+            if (true)
             {
-                var rangesList = Downloader.Download();
-                rangesRaw = JsonConvert.SerializeObject(rangesList);
-                db.StringSet("ranges", rangesRaw);
+                IPPrefixesInput = Downloader.Download();
+                IPPrefixesInput.Add(new IPPrefix("0.0.0.0/8"));
+                IPPrefixesInput.Add(new IPPrefix("10.0.0.0/8"));
+                IPPrefixesInput.Add(new IPPrefix("172.16.0.0/12"));
+                IPPrefixesInput.Add(new IPPrefix("169.254.0.0/16"));
+                IPPrefixesInput.Add(new IPPrefix("192.168.0.0/16"));
+                IPPrefixesInput.Add(new IPPrefix("224.0.0.0/3"));
+
+                strJsonIPPrefixList = JsonConvert.SerializeObject(IPPrefixesInput);
+                //db.StringSet("ranges", strJsonIPPrefixList);
             }
 
-            var ranges = JsonConvert.DeserializeObject<List<IPPrefix>>(rangesRaw);
-            var results = Generator.Not(ranges);
+            var ranges = JsonConvert.DeserializeObject<List<IPPrefix>>(strJsonIPPrefixList);
+            IPPrefixesOutput = Generator.Not(ranges);
 
-            ViewData["ranges"] = ranges;
-            return View(results);
+            ViewData["IPPrefix"] = ranges;
+            return View(IPPrefixesOutput);
         }
     }
 }

@@ -9,20 +9,34 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace AzureRange.Console
+namespace AzureRange.ConsoleApp
 {
     public class Program
     {
         static void Main(string[] args)
         {
-            // Load the XML file into ranges
-            var ipPrefixes = Downloader.Download();
-            // ADD THE BASIC PRIVATE NETWORKS to the list, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 224.0.0.0/3
-            // Order the ranges by increasing network ID
-            var results = Generator.Not(ipPrefixes);
-            // Extract a gap
-            
+            // Variable declaration 
+            List<IPPrefix> ipPrefixesInput;
+            List<IPPrefix> ipPrefixesOutput;
 
+            // Load the XML file into ranges
+            ipPrefixesInput = Downloader.Download();
+            // add default private network prefixes
+            ipPrefixesInput.Add(new IPPrefix("0.0.0.0/8"));
+            ipPrefixesInput.Add(new IPPrefix("10.0.0.0/8"));
+            ipPrefixesInput.Add(new IPPrefix("172.16.0.0/12"));
+            ipPrefixesInput.Add(new IPPrefix("169.254.0.0/16"));
+            ipPrefixesInput.Add(new IPPrefix("192.168.0.0/16"));
+            ipPrefixesInput.Add(new IPPrefix("224.0.0.0/3"));
+    
+            // Order the ranges by increasing network ID
+            ipPrefixesOutput = Generator.Not(ipPrefixesInput);
+            foreach (IPPrefix l_currentPrefix in ipPrefixesOutput)
+            {
+                Console.Write(String.Concat(l_currentPrefix.ReadableIP,"/",l_currentPrefix.Mask,"\n"));
+                //Console.WriteLine;
+            }
+            Console.Write("Termine!\n");
             Debugger.Break();
         }
     }
