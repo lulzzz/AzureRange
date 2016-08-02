@@ -8,61 +8,78 @@ namespace AzureRange
 {
     public class Generator
     {
-        public static List<IpRange> Not(List<IpRange> ranges)
+        public static List<IPPrefix> Not(List<IPPrefix> p_PrefixList)
         {
-            var compRange = new List<IpRange>();
-            IpRange previousRange = ranges.OrderBy(r => r.NetworkDecimal).First();
-            foreach (var range in ranges.OrderBy(r => r.NetworkDecimal))
+            //variable declaration
+            List<IPPrefix> l_complementPrefixList = new List<IPPrefix>();
+            IPPrefix l_previousPrefix;
+            
+            // Order the prefix list in numeric order
+            l_previousPrefix = p_PrefixList.OrderBy(r => r.FirstIP).First();
+            
+            // For each prefix, find the gap... 
+            foreach (IPPrefix l_currentPrefix in p_PrefixList.OrderBy(r => r.FirstIP))
             {
-                if (previousRange != null)
+                if (l_previousPrefix != null)
                 {
-                    var result = Generator.ProcessGap(previousRange, range);
-                    if (result != null)
-                        compRange.AddRange(result);
+                    var l_complementPrefix = ProcessGap(l_previousPrefix, l_currentPrefix);
+                    if (l_complementPrefix != null)
+                        l_complementPrefixList.AddRange(l_complementPrefix);
                 }
-                previousRange = range;
+                l_previousPrefix = l_currentPrefix;
             }
-            return compRange.OrderBy(r => r.NetworkDecimal).ToList();
+            return l_complementPrefixList.OrderBy(r => r.FirstIP).ToList();
         }
-        public static List<IpRange> ProcessGap(IpRange previousRange, IpRange range)
+        public static List<IPPrefix> ProcessGap(IPPrefix p_Prefix_PreviousPrefix, IPPrefix p_CurrentPrefix)
         {
-            var gapSubnets = new List<IpRange>();
+            var l_PrefixListGap = new List<IPPrefix>();
 
-            var subnet = GetSubnetsBetween(previousRange, range);
-            if (subnet == null)
+            // Trouver le premier gap valable pour l'écart à combler
+            var l_PrefixGap = GetPrefixesBetween(p_Prefix_PreviousPrefix, p_CurrentPrefix);
+
+            // Si aucun prefixe de trouve, on retourne null
+            if (l_PrefixGap == null)
+                // ne rien retourner
                 return null;
 
-            gapSubnets.Add(subnet);
-            var innerRanges = ProcessGap(previousRange, subnet);
-            if (innerRanges != null)
-                gapSubnets.AddRange(innerRanges);
+            // sinon ajouter le prefixe a la solution
+            l_PrefixListGap.Add(l_PrefixGap);
 
-            return gapSubnets;
+            // Chercher la solution entre le prefixe précédent et celui qui vient d'être trouvé
+            var innerRanges = ProcessGap(p_Prefix_PreviousPrefix, l_PrefixGap);
+            if (innerRanges != null)
+                l_PrefixListGap.AddRange(innerRanges);
+
+            return l_PrefixListGap;
         }
 
-        public static IpRange GetSubnetsBetween(IpRange lowerBound, IpRange upperBound)
+        public static IPPrefix GetPrefixesBetween(IPPrefix p_Prefix_LowerBound, IPPrefix p_Prefix_UpperBound)
         {
-            var lastIpInBetween = upperBound.NetworkDecimal - 1;
-            IpRange lastNetwork = null;
-            for (var i = 32; i > 0; i--)
-            {
-                var mask = (long)Math.Pow(2, i) - 1;
-                var shiftedMask = mask << 32 - i;
-                var network = new IpRange(lastIpInBetween & shiftedMask, i);
+            UInt32 l_int_lastIPInBetween = p_Prefix_UpperBound.FirstIP - 1;
+            IPPrefix l_Prefix_lastNetwork = null;               // variable used to identify the subnet searched
 
+            // Validation pour chaque masque potentiel (/32, /31, /30, etc.)
+            for (short i = 32; i > 0; i--)
+            {
+                //var l_long_maskBits = (long)Math.Pow(2, i) - 1;
+                UInt32 l_long_maskBits = ((UInt32)Math.Pow(2, i) - 1) << (32 - i);
+                var l_IPPrefix_TempNetwork = new IPPrefix(l_int_lastIPInBetween & l_long_maskBits, i);
+                //var int toto = sizeof(int);
+
+                // Valide si le prefixe temporaire trouve d
                 if (!(
-                    network.NetworkDecimal > lowerBound.LastIp &&
-                    network.LastIp < upperBound.NetworkDecimal
+                    l_IPPrefix_TempNetwork.FirstIP > p_Prefix_LowerBound.LastIP &&
+                    l_IPPrefix_TempNetwork.LastIP < p_Prefix_UpperBound.FirstIP
                     )
                     )
                 {
-                    if (lastNetwork != null)
-                        return lastNetwork;
+                    if (l_Prefix_lastNetwork != null)
+                        return l_Prefix_lastNetwork;
                     else
                         return null;
                 }
 
-                lastNetwork = network;
+                l_Prefix_lastNetwork = l_IPPrefix_TempNetwork;
             }
 
             return null;

@@ -7,16 +7,25 @@
     <h1>Azure Range - BETA</h1>
 
     <p>
-        Processed <b>@(((List<IpRange>)ViewData["Ranges"]).Count())</b> Ranges from <a href="https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653">Microsoft Azure Datacenter IP Ranges</a>
+        Processed <b>@(((List<IPPrefix>)ViewData["IPPrefixInput"]).Count())</b> 
+        IPv4 prefixes from <a href="https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653">
+        Microsoft Azure Datacenter IP Prefixes</a>
     </p>
     <p>
-        Found minimum of <b>@Model.Count</b> complementary subnets
+        Found <b>@Model.Count</b> complementary subnets
+        @if (Model.Count <= 4000)
+        {
+            <b>, which is less than 4000 routes, and requires a <u>Standard</u> ER Circuit!</b>
+        }else
+        {
+            <b>, Which is more than 4000 routes and requires a <u>Premium</u> ER Circuit!</b>
+        } 
     </p>
     
     <div>
-        @foreach (AzureRange.IpRange range in Model)
+        @foreach (AzureRange.IPPrefix range in Model)
         {
-            @range.ToString();<br />
+            <b>ip route </b>@(range.ToStringLongMask())<b> null0</b><br />
         }
     </div>
 </div>
