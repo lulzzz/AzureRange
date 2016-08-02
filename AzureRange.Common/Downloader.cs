@@ -20,18 +20,19 @@ namespace AzureRange
             List<IPPrefix> IPPrefixes = new List<IPPrefix>();                          // List of IP prefixes loaded from XML file
             StreamReader streamReader;
 
-            /*using (var wc = new WebClient())
+            using (var wc = new WebClient())
             {
                 dlUrl = wc.DownloadString(downloadPage);
                 var result = Regex.Match(dlUrl, "url=(.*)\"");
                 dlUrl = result.Groups[1].Value;
                 dlContent = wc.DownloadString(dlUrl);
-            }*/
+            }
 
+            /*
             using (streamReader = new StreamReader(@"c:\Users\omartin2\Downloads\PublicIPs_20160719.xml", Encoding.UTF8))
             {
                 dlContent = streamReader.ReadToEnd();
-            }
+            }*/
             
             var xContent = XDocument.Load(new StringReader(dlContent));     // XML document containing the list 
 
