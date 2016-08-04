@@ -42,13 +42,17 @@ namespace AzureRange.Website.Controllers
                 ipPPrefixesInput.Add(new IPPrefix("224.0.0.0/3"));
 
                 jsonIpPrefixList = JsonConvert.SerializeObject(ipPPrefixesInput);
-                db.StringSet("ranges", jsonIpPrefixList, TimeSpan.FromHours(1));
+                try
+                {
+                    db.StringSet("ranges", jsonIpPrefixList, TimeSpan.FromHours(1));
+                }
+                finally { }
             }
 
             ipPPrefixesInput = JsonConvert.DeserializeObject<List<IPPrefix>>(jsonIpPrefixList);
             ipPrefixesOutput = Generator.Not(ipPPrefixesInput); 
 
-            ViewData["IPPrefixInput"] = ipPrefixesOutput;
+            ViewData["IPPrefixInput"] = ipPPrefixesInput;
             return View(ipPrefixesOutput);
         }
     }
