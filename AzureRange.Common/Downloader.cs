@@ -17,8 +17,7 @@ namespace AzureRange
             string downloadPage = "https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653";
             string dlUrl = string.Empty;
             string dlContent = string.Empty;
-            List<IPPrefix> IPPrefixes = new List<IPPrefix>();                          // List of IP prefixes loaded from XML file
-            StreamReader streamReader;
+            List<IPPrefix> IPPrefixes = new List<IPPrefix>();
 
             using (var wc = new WebClient())
             {

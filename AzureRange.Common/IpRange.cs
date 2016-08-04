@@ -55,6 +55,7 @@ namespace AzureRange
         public UInt32 FirstIP { get; set; }
         public int Mask { get; set; }
 
+
         public UInt32 LastIP
         {
             get
@@ -68,6 +69,16 @@ namespace AzureRange
             get
             {
                 return IPAddress.Parse(LastIP.ToString()).ToString();
+            }
+        }
+
+        public string ReadableMask
+        {
+            get
+            {
+                var mask = ~(0xFFFFFFFF >> Mask);
+
+                return IPAddress.Parse(mask.ToString()).ToString();
             }
         }
 
@@ -85,8 +96,7 @@ namespace AzureRange
 
         public string ToStringLongMask()
         {
-            //return format 10.10.10.0 255.255.255.0
-            return ReadableIP + " " + "255.255.255.0";
+            return ReadableIP + " " + ReadableMask;
         }
 
         public bool Equals(IPPrefix other)

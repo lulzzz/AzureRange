@@ -48,6 +48,7 @@ namespace AzureRange.Common.Test
             result = Generator.GetPrefixesBetween(lowerBound, result);
             Assert.AreEqual(result.ReadableIP, "192.168.1.0");
             Assert.AreEqual(result.Mask, 24);
+            Assert.AreEqual(result.ReadableMask, "255.255.255.0");
 
             result = Generator.GetPrefixesBetween(lowerBound, result);
             Assert.IsNull(result);
