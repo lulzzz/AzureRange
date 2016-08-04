@@ -45,7 +45,7 @@ namespace AzureRange.Website.Controllers
                 db.StringSet("ranges", jsonIpPrefixList, TimeSpan.FromHours(1));
             }
 
-            var ranges = JsonConvert.DeserializeObject<List<IPPrefix>>(jsonIpPrefixList);
+            ipPPrefixesInput = JsonConvert.DeserializeObject<List<IPPrefix>>(jsonIpPrefixList);
             ipPrefixesOutput = Generator.Not(ipPPrefixesInput); 
 
             ViewData["IPPrefixInput"] = ipPrefixesOutput;
