@@ -4,29 +4,32 @@
 @using AzureRange
 
 <div>
-    <h1>Azure Range - BETA</h1>
-
-    <p>
-        Processed <b>@(((List<IPPrefix>)ViewData["IPPrefixInput"]).Count())</b> 
-        IPv4 prefixes from <a href="https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653">
-        Microsoft Azure Datacenter IP Prefixes</a>
-    </p>
-    <p>
-        Found <b>@Model.Count</b> complementary subnets, which is 
-        @if (Model.Count <= 4000)
-        {
-            <span>less than 4000 routes, and requires a<u> Standard</u> ER Circuit</span>
-        }
-        else
-        {
-            <span>more than 4000 routes and requires a < u > Premium </ u > ER Circuit.</span>
-        }    
-    </p>
-    <p>
-        Code can be found on <a href="https://github.com/fchapleau/AzureRange">GitHub</a>.
-    </p>
-    
     <div>
+        <img id="logo" src="~/Content/shield_100.png"/>
+        <h1>Azure Range - BETA</h1>
+
+        <p>
+            Processed <b>@(((List<IPPrefix>)ViewData["IPPrefixInput"]).Count())</b> 
+            IPv4 prefixes from <a href="https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653">
+            Microsoft Azure Datacenter IP Prefixes</a>
+        </p>
+        <p>
+            Found <b>@Model.Count</b> complementary subnets, which is 
+            @if (Model.Count <= 4000)
+            {
+                <span>less than 4000 routes, and requires a<u> Standard</u> ER Circuit</span>
+            }
+            else
+            {
+                <span>more than 4000 routes and requires a < u > Premium </ u > ER Circuit.</span>
+            }    
+        </p>
+        <p>
+            Code can be found on <a href="https://github.com/fchapleau/AzureRange">GitHub</a>.
+        </p>
+    </div>
+    
+    <div id="routes">
         @foreach (AzureRange.IPPrefix range in Model)
         {
             <b>ip route </b>@(range.ToStringLongMask())<b> null0</b><br />
