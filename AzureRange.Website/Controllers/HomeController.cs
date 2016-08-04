@@ -26,16 +26,16 @@ namespace AzureRange.Website.Controllers
         public ActionResult Index()
         {
             var db = Connection.GetDatabase();
-            var strJsonIPPrefixList = string.Empty;
+            var jsoIpPrefixList = string.Empty;
             List<IPPrefix> ipPPrefixesInput = null, ipPrefixesOutput = null;
 
 #if debug
 
 #else
-            db.StringGet("ranges");
+            jsoIpPrefixList = db.StringGet("ranges");
 #endif
 
-            if (string.IsNullOrEmpty(strJsonIPPrefixList))
+            if (string.IsNullOrEmpty(jsoIpPrefixList))
             {
                 // Load into IPPrefixesInput the list of prefixes to find complement for.
                 ipPPrefixesInput = Downloader.Download();
@@ -46,13 +46,13 @@ namespace AzureRange.Website.Controllers
                 ipPPrefixesInput.Add(new IPPrefix("192.168.0.0/16"));
                 ipPPrefixesInput.Add(new IPPrefix("224.0.0.0/3"));
 
-                strJsonIPPrefixList = JsonConvert.SerializeObject(ipPPrefixesInput);
+                jsoIpPrefixList = JsonConvert.SerializeObject(ipPPrefixesInput);
 #if debug
                 db.StringSet("ranges", strJsonIPPrefixList, TimeSpan.FromHours(1));
 #endif
             }
 
-            var ranges = JsonConvert.DeserializeObject<List<IPPrefix>>(strJsonIPPrefixList);
+            var ranges = JsonConvert.DeserializeObject<List<IPPrefix>>(jsoIpPrefixList);
             ipPrefixesOutput = Generator.Not(ipPPrefixesInput); 
 
             ViewData["IPPrefixInput"] = ipPrefixesOutput;
