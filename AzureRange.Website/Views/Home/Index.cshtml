@@ -12,15 +12,15 @@
         Microsoft Azure Datacenter IP Prefixes</a>
     </p>
     <p>
-        Found <b>@Model.Count</b> complementary subnets
+        Found <b>@Model.Count</b> complementary subnets, which is 
         @if (Model.Count <= 4000)
         {
-            , which is less than 4000 routes, and requires a <u>Standard</u> ER Circuit.
-        }else
+            <span>less than 4000 routes, and requires a<u> Standard</u> ER Circuit</span>
+        }
+        else
         {
-            , Which is more than 4000 routes and requires a <u>Premium</u> ER Circuit.
-        } 
-    </p>
+            <span>more than 4000 routes and requires a < u > Premium </ u > ER Circuit.</span>
+        }    </p>
     <p>
         Code can be found on <a href="https://github.com/fchapleau/AzureRange">GitHub</a>.
     </p>
