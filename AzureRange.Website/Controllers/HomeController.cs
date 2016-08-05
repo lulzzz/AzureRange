@@ -28,7 +28,13 @@ namespace AzureRange.Website.Controllers
             var db = Connection.GetDatabase();
             var jsonIpPrefixList = string.Empty;
             List<IPPrefix> ipPPrefixesInput = null, ipPrefixesOutput = null;
-            jsonIpPrefixList = db.StringGet("ranges");
+            try
+            {
+                jsonIpPrefixList = db.StringGet("ranges");
+            }
+            catch (TimeoutException)
+            {
+            }
 
             if (string.IsNullOrEmpty(jsonIpPrefixList))
             {

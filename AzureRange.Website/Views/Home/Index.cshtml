@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Azure Range- BETA";
+    ViewBag.Title = "Azure Range - BETA";
 }
 @using AzureRange
 
@@ -15,21 +15,50 @@
         Found <b>@Model.Count</b> complementary subnets, which is 
         @if (Model.Count <= 4000)
         {
-            <span>less than 4000 routes, and requires a<u> Standard</u> ER Circuit</span>
+            <span>less than 4000 routes: a <u>Standard</u> ER Circuit is sufficient.</span>
         }
         else
         {
-            <span>more than 4000 routes and requires a < u > Premium </ u > ER Circuit.</span>
+            <span>more than 4000 routes: requires a <u>Premium</u> ER Circuit.</span>
         }    
     </p>
     <p>
-        Code can be found on <a href="https://github.com/fchapleau/AzureRange">GitHub</a>.
+        Code can be found on <a href="https://github.com/fchapleau/AzureRange">GitHub</a>.<br />
+        <h3>Objective</h3>
+        The used of these configuration statement will enable your VNet(s) to do forced tunneling <br />
+        for all <b>NON AZURE DESTINED</b> traffic.<br />
+        <h3>Future Plans</h3>
+        Future plans include the ability to select the Azure Region to be more specific of <br />
+        which region you want to allow direct access from your VNet without packets being forced <br />
+        back towards the peering location.<br />
+        <h3>Disclaimer</h3>
+        <b>
+            Use at your own risks on your routers. Like any production network, you need to understand fully<br />
+            the impact of pasting these configuration lines into your production routers. The authors provide<br />
+            no guarantee on that code, implicit or explicit and aren't liable for any consequence, including loss<br />
+            of productivity, profits, etc.<br />
+        </b>
+        <h3>Sample Code (Cisco IOS)</h3>
+        Inside a Cisco router peering with MSEE routers, you <b>could</b> have a configuration similar to :<br />
+        <div id="routes">
+            <font face="Courier New">
+                router bgp &lt;<i>YOUR ASN</i>&gt;<br />
+                &nbsp;bgp log-neighbor-changes<br />
+                &nbsp;neighbor &lt;<i>PRIVATE_PEERING_EXPRESSROUTE_IP</i>&gt; remote-as 12076 ! ASN for ExpressRoute = 12076<br />
+                &nbsp;!<br />
+                &nbsp;address-family ipv4<br />
+                &nbsp;&nbsp;<b>redistribute static</b> ! <b>this is one way to inject the networks below</b><br />
+                &nbsp;&nbsp;neighbor &lt;<i>PRIVATE_PEERING_EXPRESSROUTE_IP</i>&gt; activate<br />
+                &nbsp;&nbsp;no auto-summary<br />
+                &nbsp;&nbsp;no synchronization<br />
+                &nbsp;exit-address-family<br />
+                !<br />
+                @foreach (AzureRange.IPPrefix range in Model)
+                {
+                    <div>ip route @(range.ToStringLongMask()) null0</div>
+                }
+                  
+            </font>
+        </div>
     </p>
-    
-    <div>
-        @foreach (AzureRange.IPPrefix range in Model)
-        {
-            <b>ip route </b>@(range.ToStringLongMask())<b> null0</b><br />
-        }
-    </div>
 </div>
