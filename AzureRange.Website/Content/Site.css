@@ -22,3 +22,6 @@ select,
 textarea {
     max-width: 280px;
 }
+
+#logo { float: left; padding: 20px }
+#routes {clear: both;}
