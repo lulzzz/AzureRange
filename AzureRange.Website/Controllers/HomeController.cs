@@ -52,6 +52,8 @@ namespace AzureRange.Website.Controllers
                 {
                     db.StringSet("ranges", jsonIpPrefixList, TimeSpan.FromHours(1));
                 }
+                catch (TimeoutException)
+                { }
                 finally { }
             }
 
