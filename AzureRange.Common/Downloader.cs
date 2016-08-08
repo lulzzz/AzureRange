@@ -47,8 +47,6 @@ namespace AzureRange
                     IPPrefixes.Add(prefix);
                 }
             }
-            // Adding default prefixes
-            //var prefix = new IP
 
             return IPPrefixes;
         }

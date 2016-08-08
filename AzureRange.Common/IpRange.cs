@@ -11,7 +11,6 @@ namespace AzureRange
     {
         public IPPrefix()
         {
-            //Pourquoi ce constructeur
         }
         public IPPrefix(UInt32 pUInt32_Network, int pInt_Mask)
         {
@@ -26,13 +25,18 @@ namespace AzureRange
 
             Mask = Convert.ToInt32(RawPrefix.Substring(RawPrefix.IndexOf("/") + 1));
 
+            #region FirstIp conversion
+
             var subnetParts = RawPrefixSubnet.Split('.');
             UInt32 subnetDecimal = (UInt32)Convert.ToInt32(subnetParts[0]) * 256 * 256 * 256;
             subnetDecimal += (UInt32)Convert.ToInt32(subnetParts[1]) * 256 * 256;
             subnetDecimal += (UInt32)Convert.ToInt32(subnetParts[2]) * 256;
             subnetDecimal += (UInt32)Convert.ToInt32(subnetParts[3]);
             FirstIP = subnetDecimal;
+
+            #endregion
         }
+
         public IPPrefix (string pStrRegion, string pStrRawPrefix)
         {
             Region = pStrRegion;
@@ -54,7 +58,6 @@ namespace AzureRange
         public string RawPrefixSubnet { get; set; }
         public UInt32 FirstIP { get; set; }
         public int Mask { get; set; }
-
 
         public UInt32 LastIP
         {
