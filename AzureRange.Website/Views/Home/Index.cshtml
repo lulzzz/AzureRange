@@ -24,25 +24,65 @@
             <span>more than 4000 routes: requires a <u>Premium</u> ER Circuit.</span>
         }    
     </p>
-    <p>
-        Code can be found on <a href="https://github.com/fchapleau/AzureRange">GitHub</a>.<br />
-        <h3>Objective</h3>
-        The used of these configuration statement will enable your VNet(s) to do forced tunneling <br />
-        for all <b>NON AZURE DESTINED</b> traffic.<br />
-        <h3>Future Plans</h3>
-        Future plans include the ability to select the Azure Region to be more specific of <br />
-        which region you want to allow direct access from your VNet without packets being forced <br />
-        back towards the peering location.<br />
-        <h3>Disclaimer</h3>
-        <b>
-            Use at your own risks on your routers. Like any production network, you need to understand fully<br />
-            the impact of pasting these configuration lines into your production routers. The authors provide<br />
-            no guarantee on that code, implicit or explicit and aren't liable for any consequence, including loss<br />
-            of productivity, profits, etc.<br />
-        </b>
+    <div>
+        Code can be found on <a href="https://github.com/fchapleau/AzureRange">GitHub</a>.
+            <div>
+                <h3>Background</h3>
+                <p style="margin-left:50px">
+                    Often because of security reasons, many customers choose to enable « forced tunneling » when it comes to ExpressRoute
+                    configuration because they wish to have all traffic that isn’t destined to the local VNet resources to be inspected by
+                    their local on premise gear, appliances or devices.
+                </p>    
+                <p style="margin-left:50px">
+                    Enabling forced tunneling allows customer to do just that, but that includes all traffic, <u>including traffic that is 
+                    destined to Azure Public resources, including but not limited to, SQL Azure or other Azure public resources</u>.
+                </p>
+           </div>
+
+            <div>
+                <h3>Solution</h3>
+                <p style="margin-left:50px">
+                    While not the only possible solution, one solution is to do a “selective” forced tunneling, meaning that not ALL traffic
+                    is being redirected towards on premise but only traffic that isn’t destined to the resources required by the applications
+                    on the VNet.
+                </p>
+            </div>
+
+            <div>
+                <h3>Details</h3>
+                <p style="margin-left:50px">
+                    Advertising 0.0.0.0/0 on the BGP sessions with the Microsoft Enterprise Edge routers achieves the forced tunneling.
+                    To ensure that not all (a.k.a. 0.0.0.0/0) traffic is sent back on premise, you need to find which prefixes need to be
+                    routed back on premise (instead of 0.0.0.0/0) and that list needs to exclude the prefixes you want to keep for local
+                    routing “in the cloud”.
+                </p>
+            </div>
+
+            <div>
+                <h3>Implementation</h3>
+                <p style="margin-left:50px">
+                    How you implement that is highly dependent on your telecommunication equipment but a sample below describes one way of
+                    achieving it using Cisco routers, and as of today, we exclude ALL public IPs that Microsoft uses in their datacenters
+                    (as based on the list that you can download here).
+                </p>
+            </div>
+        <div>
+            <h3>Disclaimer</h3>
+            <p style="margin-left:50px">
+                <b>
+                    Use at your own risks on your routers. Like any production network, you need to understand fully the impact of using 
+                    these configuration lines into your production routers. The authors provide no guarantee on that code, implicit or 
+                    explicit and aren't liable for any consequence, including loss of productivity, profits, etc.
+                </b>
+            </p>
+        </div>
+
+    <div>
         <h3>Sample Code (Cisco IOS)</h3>
-        Inside a Cisco router peering with MSEE routers, you <b>could</b> have a configuration similar to :<br />
-        <div id="routes">
+        <p style="margin-left:50px">
+            Inside a Cisco router peering with MSEE routers, you <b>could</b> have a configuration similar to :
+        </p>
+        <div id="routes" style="margin-left:50px">
             <font face="Courier New">
                 router bgp &lt;<i>YOUR ASN</i>&gt;<br />
                 &nbsp;bgp log-neighbor-changes<br />
@@ -59,8 +99,9 @@
                 {
                     <div>ip route @(range.ToStringLongMask()) null0</div>
                 }
-                  
             </font>
         </div>
-    </p>
+    </div>
+
+    </div>
 </div>
