@@ -53,9 +53,9 @@
             <div>
                 <h3>Details</h3>
                 <p style="margin-left:50px">
-                    Advertising 0.0.0.0/0 on the BGP sessions with the Microsoft Enterprise Edge routers achieves the forced tunneling.
+                    Advertising 0.0.0.0/0 on the BGP sessions with the Microsoft Enterprise Edge routers achieves forced tunneling.
                     To ensure that not all (a.k.a. 0.0.0.0/0) traffic is sent back on premise, you need to find which prefixes need to be
-                    routed back on premise (instead of 0.0.0.0/0) and that list needs to exclude the prefixes you want to keep for local
+                    routed back on premise (instead of 0.0.0.0/0) and that list needs to exclude all prefixes you want to keep for local
                     routing “in the cloud”.
                 </p>
             </div>
@@ -65,7 +65,8 @@
                 <p style="margin-left:50px">
                     How you implement that is highly dependent on your telecommunication equipment but a sample below describes one way of
                     achieving it using Cisco routers, and as of today, we exclude ALL public IPs that Microsoft uses in their datacenters
-                    (as based on the list that you can download here).
+                    (as based on the list that you can download <a href="https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653">
+                    here</a>).
                 </p>
             </div>
         <div>
