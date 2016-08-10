@@ -6,7 +6,8 @@
 <div>
     <div>
         <img id="logo" src="~/Content/shield_100.png"/>
-        <h1>Azure Range - BETA</h1>
+        <h1>Azure Range - BETA v0.1</h1>
+        <h2>Do NOT use on production unless you know what you do</h2>
     </div>
     <p>
         Processed <b>@(((List<IPPrefix>)ViewData["IPPrefixInput"]).Count())</b> 
@@ -53,9 +54,9 @@
             <div>
                 <h3>Details</h3>
                 <p style="margin-left:50px">
-                    Advertising 0.0.0.0/0 on the BGP sessions with the Microsoft Enterprise Edge routers achieves the forced tunneling.
+                    Advertising 0.0.0.0/0 on the BGP sessions with the Microsoft Enterprise Edge routers achieves forced tunneling.
                     To ensure that not all (a.k.a. 0.0.0.0/0) traffic is sent back on premise, you need to find which prefixes need to be
-                    routed back on premise (instead of 0.0.0.0/0) and that list needs to exclude the prefixes you want to keep for local
+                    routed back on premise (instead of 0.0.0.0/0) and that list needs to exclude all prefixes you want to keep for local
                     routing “in the cloud”.
                 </p>
             </div>
