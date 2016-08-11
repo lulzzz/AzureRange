@@ -8,30 +8,28 @@
 }
 
 <div>
-    <div>
-        <img id="logo" src="~/Content/shield_100.png"/>
-        <h1>Azure Range - BETA v0.1</h1>
-        <h2>Do NOT use on production unless you know what you do</h2>
+    <div id="headerAndLogo">
+        <img id="logo" src="~/Content/shield_100.png" />
+        <h1>Azure Range</h1>
+        <b>BETA v0.2</b> - Do not use on production unless you know what you do.
+        <p>
+            Processed <b>@(((List<IPPrefix>)ViewData["IPPrefixInput"]).Count())</b>
+            IPv4 prefixes from <a target="_blank" href="https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653">
+                Microsoft Azure Datacenter IP Prefixes
+            </a>.<br />
+
+            Found <b>@Model.Count</b> complementary subnets, which is
+            @if (Model.Count <= 4000)
+            {
+                <span>less than 4000 routes: a <u>Standard</u> ER Circuit is sufficient.</span>
+            }
+            else
+            {
+                <span>more than 4000 routes: requires a <u>Premium</u> ER Circuit.</span>
+            }<br />
+            Code can be found on <a href="https://github.com/fchapleau/AzureRange">GitHub</a>.
+        </p>
     </div>
-    <p>
-        Processed <b>@(((List<IPPrefix>)ViewData["IPPrefixInput"]).Count())</b> 
-        IPv4 prefixes from <a target="_blank" href="https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653">
-        Microsoft Azure Datacenter IP Prefixes</a>
-    </p>
-    <p>
-        Found <b>@Model.Count</b> complementary subnets, which is 
-        @if (Model.Count <= 4000)
-        {
-            <span>less than 4000 routes: a <u>Standard</u> ER Circuit is sufficient.</span>
-        }
-        else
-        {
-            <span>more than 4000 routes: requires a <u>Premium</u> ER Circuit.</span>
-        }    
-    </p>
-    <p>
-        Code can be found on <a href="https://github.com/fchapleau/AzureRange">GitHub</a>.<br /><br />
-    </p>
     
 
     <div id="generation">
