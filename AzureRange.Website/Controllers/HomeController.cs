@@ -4,64 +4,22 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 
 namespace AzureRange.Website.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
-        private static Lazy<ConnectionMultiplexer> lazyConnection = new Lazy<ConnectionMultiplexer>(() =>
-        {
-            string cacheConnection = ConfigurationManager.AppSettings["CacheConnection"].ToString();
-            return ConnectionMultiplexer.Connect(cacheConnection);
-        });
-        public static IConnectionMultiplexer Connection
-        {
-            get
-            {
-                return lazyConnection.Value;
-            }
-        }
         public ActionResult Index()
         {
-            var db = Connection.GetDatabase();
-            var jsonIpPrefixList = string.Empty;
-            List<IPPrefix> ipPPrefixesInput = null, ipPrefixesOutput = null;
-            try
-            {
-                jsonIpPrefixList = db.StringGet("ranges");
-            }
-            catch (TimeoutException)
-            {
-            }
+            var webGen = new WebGenerator(CacheConnection);
+            var result = webGen.Generate(webGen.GetRegions().Select(r=>r.Id).ToList());
 
-            if (string.IsNullOrEmpty(jsonIpPrefixList))
-            {
-                // Load into IPPrefixesInput the list of prefixes to find complement for.
-                ipPPrefixesInput = Downloader.Download();
-                ipPPrefixesInput.Add(new IPPrefix("0.0.0.0/8"));
-                ipPPrefixesInput.Add(new IPPrefix("10.0.0.0/8"));
-                ipPPrefixesInput.Add(new IPPrefix("172.16.0.0/12"));
-                ipPPrefixesInput.Add(new IPPrefix("169.254.0.0/16"));
-                ipPPrefixesInput.Add(new IPPrefix("192.168.0.0/16"));
-                ipPPrefixesInput.Add(new IPPrefix("224.0.0.0/3"));
-
-                jsonIpPrefixList = JsonConvert.SerializeObject(ipPPrefixesInput);
-                try
-                {
-                    db.StringSet("ranges", jsonIpPrefixList, TimeSpan.FromHours(1));
-                }
-                catch (TimeoutException)
-                { }
-                finally { }
-            }
-
-            ipPPrefixesInput = JsonConvert.DeserializeObject<List<IPPrefix>>(jsonIpPrefixList);
-            ipPrefixesOutput = Generator.Not(ipPPrefixesInput); 
-
-            ViewData["IPPrefixInput"] = ipPPrefixesInput;
-            return View(ipPrefixesOutput);
+            ViewData["IPPrefixInput"] = webGen.CachedList;
+            ViewData["Regions"] = webGen.GetRegions();
+            return View(result);
         }
     }
 }

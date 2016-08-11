@@ -3,6 +3,10 @@
 }
 @using AzureRange
 
+@{ 
+    var regions = (List<AzureRegion>)ViewData["Regions"];
+}
+
 <div>
     <div>
         <img id="logo" src="~/Content/shield_100.png"/>
@@ -10,7 +14,7 @@
     </div>
     <p>
         Processed <b>@(((List<IPPrefix>)ViewData["IPPrefixInput"]).Count())</b> 
-        IPv4 prefixes from <a href="https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653">
+        IPv4 prefixes from <a target="_blank" href="https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653">
         Microsoft Azure Datacenter IP Prefixes</a>
     </p>
     <p>
@@ -24,60 +28,84 @@
             <span>more than 4000 routes: requires a <u>Premium</u> ER Circuit.</span>
         }    
     </p>
-    <div>
-        <p>
-            Code can be found on <a href="https://github.com/fchapleau/AzureRange">GitHub</a>.<br/><br/>
+    <p>
+        Code can be found on <a href="https://github.com/fchapleau/AzureRange">GitHub</a>.<br /><br />
+    </p>
+    
+
+    <div id="generation">
+        <form action="generate" method="get">
+            <div id="geographyselection">
+                @foreach (var geography in regions.Select(r => r.Geography).Distinct().OrderBy(g => g))
+                {
+                    <div class="geography">
+                        <div class="geographyLabel">@geography</div>
+                        @foreach (var region in regions.Where(r => r.Geography == geography).OrderBy(r => r.Name))
+                        {
+                            <div class="region"><label><input type="checkbox" name="region" value="@region.Id" />@region.Name</label></div>
+                        }
+                    </div>
+                }
+
+                <div>
+                    Output format:
+                    <select name="outputformat">
+                        <option value="cisco">Cisco IOS</option>
+                        <option value="subnets">List of subnet/mask</option>
+                    </select>
+                    <input type="submit" value="Generate" />
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <div id="backgroundText">
+        <h3>Background</h3>
+        <p style="margin-left:50px">
+            Often because of security reasons, many customers choose to enable « forced tunneling » when it comes to ExpressRoute
+            configuration because they wish to have all traffic that isn’t destined to the local VNet resources to be inspected by
+            their local on premise gear, appliances or devices.
         </p>
-            <div>
-                <h3>Background</h3>
-                <p style="margin-left:50px">
-                    Often because of security reasons, many customers choose to enable « forced tunneling » when it comes to ExpressRoute
-                    configuration because they wish to have all traffic that isn’t destined to the local VNet resources to be inspected by
-                    their local on premise gear, appliances or devices.
-                </p>    
-                <p style="margin-left:50px">
-                    Enabling forced tunneling allows customer to do just that, but that includes all traffic, <u>including traffic that is 
-                    destined to Azure Public resources, including but not limited to, SQL Azure or other Azure public resources</u>.
-                </p>
-           </div>
+        <p style="margin-left:50px">
+            Enabling forced tunneling allows customer to do just that, but that includes all traffic, <u>
+                including traffic that is
+                destined to Azure Public resources, including but not limited to, SQL Azure or other Azure public resources
+            </u>.
+        </p>
 
-            <div>
-                <h3>Solution</h3>
-                <p style="margin-left:50px">
-                    While not the only possible solution, one solution is to do a “selective” forced tunneling, meaning that not ALL traffic
-                    is being redirected towards on premise but only traffic that isn’t destined to the resources required by the applications
-                    on the VNet.
-                </p>
-            </div>
+        <h3>Solution</h3>
+        <p style="margin-left:50px">
+            While not the only possible solution, one solution is to do a “selective” forced tunneling, meaning that not ALL traffic
+            is being redirected towards on premise but only traffic that isn’t destined to the resources required by the applications
+            on the VNet.
+        </p>
 
-            <div>
-                <h3>Details</h3>
-                <p style="margin-left:50px">
-                    Advertising 0.0.0.0/0 on the BGP sessions with the Microsoft Enterprise Edge routers achieves the forced tunneling.
-                    To ensure that not all (a.k.a. 0.0.0.0/0) traffic is sent back on premise, you need to find which prefixes need to be
-                    routed back on premise (instead of 0.0.0.0/0) and that list needs to exclude the prefixes you want to keep for local
-                    routing “in the cloud”.
-                </p>
-            </div>
+        <h3>Details</h3>
+        <p style="margin-left:50px">
+            Advertising 0.0.0.0/0 on the BGP sessions with the Microsoft Enterprise Edge routers achieves the forced tunneling.
+            To ensure that not all (a.k.a. 0.0.0.0/0) traffic is sent back on premise, you need to find which prefixes need to be
+            routed back on premise (instead of 0.0.0.0/0) and that list needs to exclude the prefixes you want to keep for local
+            routing “in the cloud”.
+        </p>
 
-            <div>
-                <h3>Implementation</h3>
-                <p style="margin-left:50px">
-                    How you implement that is highly dependent on your telecommunication equipment but a sample below describes one way of
-                    achieving it using Cisco routers, and as of today, we exclude ALL public IPs that Microsoft uses in their datacenters
-                    (as based on the list that you can download here).
-                </p>
-            </div>
-        <div>
-            <h3>Disclaimer</h3>
-            <p style="margin-left:50px">
-                <b>
-                    Use at your own risks on your routers. Like any production network, you need to understand fully the impact of using 
-                    these configuration lines into your production routers. The authors provide no guarantee on that code, implicit or 
-                    explicit and aren't liable for any consequence, including loss of productivity, profits, etc.
-                </b>
-            </p>
-        </div>
+        <h3>Implementation</h3>
+        <p style="margin-left:50px">
+            How you implement that is highly dependent on your telecommunication equipment but a sample below describes one way of
+            achieving it using Cisco routers, and as of today, we exclude ALL public IPs that Microsoft uses in their datacenters
+            (as based on the list that you can download here).
+        </p>
+
+        <h3>Disclaimer</h3>
+        <p style="margin-left:50px">
+            <b>
+                Use at your own risks on your routers. Like any production network, you need to understand fully the impact of using
+                these configuration lines into your production routers. The authors provide no guarantee on that code, implicit or
+                explicit and aren't liable for any consequence, including loss of productivity, profits, etc.
+            </b>
+        </p>
+    </div>
+    
 
     <div>
         <h3>Sample Code (Cisco IOS)</h3>
@@ -85,7 +113,7 @@
             Inside a Cisco router peering with MSEE routers, you <b>could</b> have a configuration similar to :
         </p>
         <div id="routes" style="margin-left:50px">
-            <font face="Courier New">
+            <code>
                 router bgp &lt;<i>YOUR ASN</i>&gt;<br />
                 &nbsp;bgp log-neighbor-changes<br />
                 &nbsp;neighbor &lt;<i>PRIVATE_PEERING_EXPRESSROUTE_IP</i>&gt; remote-as 12076 ! ASN for ExpressRoute = 12076<br />
@@ -97,13 +125,17 @@
                 &nbsp;&nbsp;no synchronization<br />
                 &nbsp;exit-address-family<br />
                 !<br />
-                @foreach (AzureRange.IPPrefix range in Model)
-                {
-                    <div>ip route @(range.ToStringLongMask()) null0</div>
-                }
-            </font>
+                ip route 1.0.0.0 255.0.0.0 null0<br />
+                ip route 2.0.0.0 254.0.0.0 null0<br />
+                ip route 4.0.0.0 252.0.0.0 null0<br />
+                ip route 8.0.0.0 254.0.0.0 null0<br />
+                ip route 11.0.0.0 255.0.0.0 null0<br />
+                ip route 12.0.0.0 255.0.0.0 null0<br />
+                ip route 13.0.0.0 255.192.0.0 null0<br />
+                [ etc... ]<br />
+            </code>
         </div>
     </div>
 
-    </div>
 </div>
+

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AzureRange
 {
-    public class IPPrefix: IEquatable<IPPrefix>
+    public class IPPrefix: IEquatable<IPPrefix>, ICloneable
     {
         public IPPrefix()
         {
@@ -105,6 +105,11 @@ namespace AzureRange
         public bool Equals(IPPrefix other)
         {
             return other.FirstIP.Equals(this.FirstIP) && other.Mask.Equals(this.Mask);
+        }
+
+        public object Clone()
+        {
+            return MemberwiseClone();
         }
     }
 }
