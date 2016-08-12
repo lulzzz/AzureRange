@@ -25,3 +25,39 @@ textarea {
 
 #logo { float: left; padding: 20px }
 #routes {clear: both;}
+
+#generation{
+    
+    text-align:center;
+}
+
+#geographyselection{
+    border: 1px solid black;
+    text-align:center;
+    width: 700px;    
+    padding: 10px;
+    margin-left: 140px;
+}
+
+.geography{
+    display: inline-block;
+    vertical-align: top;
+    padding: 10px;
+    text-align:left;
+    width: 150px;
+}
+
+label { font-weight: normal; font-size: 12px}
+
+.geographyLabel{
+    font-weight: bold;
+    font-size: 14px;
+}
+
+#backgroundText{
+    padding-top: 50px;
+}
+
+#headerAndLogo{
+
+}
