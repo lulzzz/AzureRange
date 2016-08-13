@@ -1,9 +1,7 @@
-﻿@{
-    ViewBag.Title = "Azure Range - BETA";
-}
-@using AzureRange
+﻿@using AzureRange
 
 @{ 
+    ViewBag.Title = "Azure Range - BETA";
     var regions = (List<AzureRegion>)ViewData["Regions"];
 }
 
@@ -56,6 +54,7 @@
                         <option value="csv-subnet-masks">CSV list of subnet/mask</option>
                         <option value="csv-cidr">CSV list of CIDR</option>
                     </select>
+                    <input type="submit" value="Download" />
                     <input type="submit" value="Generate" />
                 </div>
             </div>
