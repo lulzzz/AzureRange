@@ -41,7 +41,7 @@
                         <div class="geographyLabel">@geography</div>
                         @foreach (var region in regions.Where(r => r.Geography == geography).OrderBy(r => r.Name))
                         {
-                            <div class="region"><label><input type="checkbox" name="region" value="@region.Id" />@region.Name</label></div>
+                            <div class="region"><label><input type="checkbox" name="region" value="@region.Id" />&nbsp;@region.Name</label></div>
                         }
                     </div>
                 }
@@ -49,8 +49,12 @@
                 <div>
                     Output format:
                     <select name="outputformat">
-                        <option value="cisco">Cisco IOS</option>
-                        <option value="subnets">List of subnet/mask</option>
+                        <option value="cisco-ios">Cisco IOS/IOS XE</option>
+                        <option value="cisco-asa">Cisco ASA</option>
+                        <option value="list-subnet-masks">List of subnet/mask</option>
+                        <option value="list-cidr">List of CIDR</option>
+                        <option value="csv-subnet-masks">CSV list of subnet/mask</option>
+                        <option value="csv-cidr">CSV list of CIDR</option>
                     </select>
                     <input type="submit" value="Generate" />
                 </div>

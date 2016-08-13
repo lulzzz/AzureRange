@@ -84,7 +84,7 @@ namespace AzureRange.Website
 
             var regionManager = new RegionManager();
             var regions = regionManager.GetRegions(list);
-            regions.Add(new AzureRegion { Id = "private", Name = "Private", Location = "n/a" });
+            regions.Add(new AzureRegion { Id = "private", Name = "Private IP Address Space", Location = "n/a" });
             return regions;
         }
 
@@ -146,12 +146,10 @@ namespace AzureRange.Website
         private List<IPPrefix> GetPrivateSubnets()
         {
             var ipPPrefixesInput = new List<IPPrefix>();
-//            ipPPrefixesInput.Add(new IPPrefix("0.0.0.0/8"));
             ipPPrefixesInput.Add(new IPPrefix("10.0.0.0/8"));
             ipPPrefixesInput.Add(new IPPrefix("172.16.0.0/12"));
             ipPPrefixesInput.Add(new IPPrefix("169.254.0.0/16"));
             ipPPrefixesInput.Add(new IPPrefix("192.168.0.0/16"));
-//            ipPPrefixesInput.Add(new IPPrefix("224.0.0.0/3"));
             return ipPPrefixesInput;
         }
     }
