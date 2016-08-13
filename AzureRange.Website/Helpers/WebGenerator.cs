@@ -115,6 +115,9 @@ namespace AzureRange.Website
 
                 localList.RemoveAll(m => !regions.Contains(m.Region));
 
+                // Add default subnets - mandatory to exclude 0.0.0.0/0 and class E IP addresses
+                localList.AddRange(GetDefaultSubnets());
+                
                 // Add private subnets
                 //if (regions.Contains("private"))
                 //    localList.AddRange(GetPrivateSubnets());
@@ -147,7 +150,6 @@ namespace AzureRange.Website
             ipPPrefixesInput.Add(new IPPrefix("172.16.0.0/12"));
             ipPPrefixesInput.Add(new IPPrefix("169.254.0.0/16"));
             ipPPrefixesInput.Add(new IPPrefix("192.168.0.0/16"));
-            ipPPrefixesInput.Add(new IPPrefix("224.0.0.0/3"));
             return ipPPrefixesInput;
         }*/
     }
