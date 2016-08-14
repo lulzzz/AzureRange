@@ -40,7 +40,7 @@ route-map AZURE-OUT permit 10
 !
 ";
 
-        public FileResult Index(string[] region, string outputformat)
+        public FileResult Index(string[] region, string outputformat, string command)
         {
             var resultString = string.Empty;
 
@@ -51,26 +51,26 @@ route-map AZURE-OUT permit 10
 
                 // Cisco IOS/IOS-XR
                 if (outputformat == "cisco-ios")
-                    resultString = _ciscoIOSPrefix + Environment.NewLine + 
-                        string.Join(string.Empty, 
+                    resultString = _ciscoIOSPrefix + Environment.NewLine +
+                        string.Join(string.Empty,
                         result.Select(r => "ip route " + r.ToStringLongMask() + " null0" + Environment.NewLine
                         ).ToArray());
                 // Cisco ASA
                 if (outputformat == "cisco-asa")
                 {
-                    resultString = _ciscoASAPrefix + Environment.NewLine; 
+                    resultString = _ciscoASAPrefix + Environment.NewLine;
                     resultString = resultString + string.Join(string.Empty,
                         result.Select(r => "route <interface_name> " + r.ToStringLongMask() + " <interface_name_IP>" + Environment.NewLine
                         ).ToArray());
                     resultString = resultString + "!" + Environment.NewLine
                         + "! Prefix-List to filter outgoing update to be restricted to the list below"
                         + Environment.NewLine + "!" + Environment.NewLine;
-                    resultString = resultString + string.Join(string.Empty,result.Select(r => "prefix-list AZURE-OUT seq 100 permit " 
-                        + r.ReadableIP + "/" + r.Mask + Environment.NewLine).ToArray());
+                    resultString = resultString + string.Join(string.Empty, result.Select(r => "prefix-list AZURE-OUT seq 100 permit "
+                         + r.ReadableIP + "/" + r.Mask + Environment.NewLine).ToArray());
                 }
 
                 if (outputformat == "list-subnet-masks")
-                    resultString = string.Join(string.Empty, result.Select(r =>  r.ToStringLongMask() + Environment.NewLine).ToArray());
+                    resultString = string.Join(string.Empty, result.Select(r => r.ToStringLongMask() + Environment.NewLine).ToArray());
                 if (outputformat == "list-cidr")
                     resultString = string.Join(string.Empty, result.Select(r => r.ReadableIP + "/" + r.Mask + Environment.NewLine).ToArray());
                 if (outputformat == "csv-subnet-masks")
@@ -87,13 +87,22 @@ route-map AZURE-OUT permit 10
                 }
             }
 
-            if (string.IsNullOrEmpty(resultString))
+            if (command == "Download")
             {
-                return File(Encoding.ASCII.GetBytes("No region selected."), System.Net.Mime.MediaTypeNames.Application.Octet, "Error.txt");
+                if (string.IsNullOrEmpty(resultString))
+                {
+                    return File(Encoding.ASCII.GetBytes("No region selected."), System.Net.Mime.MediaTypeNames.Application.Octet, "Error.txt");
+                }
+                else
+                {
+                    return File(Encoding.ASCII.GetBytes(resultString), System.Net.Mime.MediaTypeNames.Application.Octet, "AzureRange.txt");
+                }
             }
-            else
+            else // command == "Generate"
             {
-                return File(Encoding.ASCII.GetBytes(resultString), System.Net.Mime.MediaTypeNames.Application.Octet, "AzureRange.txt");
+                Console.WriteLine("Toto\n");
+                
+                return File(Encoding.ASCII.GetBytes("Toto\n"), System.Net.Mime.MediaTypeNames.Application.Octet, "Toto.txt");
             }
         }
     }
