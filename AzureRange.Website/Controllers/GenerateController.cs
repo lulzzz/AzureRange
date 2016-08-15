@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,8 @@ namespace AzureRange.Website.Controllers
 {
     public class GenerateController : BaseController
     {
+
+        #region const_definition
         private const string _ciscoIOSPrefix = @"! CODE FOR IOS - CHECK IN A LAB BEFORE EXECUTING IN PRODUCTION!
 router bgp <YOUR ASN>
  bgp log-neighbor-changes
@@ -39,8 +42,9 @@ route-map AZURE-OUT permit 10
  match ip address prefix-list AZURE-OUT
 !
 ";
+        #endregion
 
-        public FileResult Index(string[] region, string outputformat, string command)
+        public object Index(string[] region, string outputformat, string command)
         {
             var resultString = string.Empty;
 
@@ -63,9 +67,9 @@ route-map AZURE-OUT permit 10
                         result.Select(r => "route <interface_name> " + r.ToStringLongMask() + " <interface_name_IP>" + Environment.NewLine
                         ).ToArray());
                     resultString = resultString + "!" + Environment.NewLine
-                        + "! Prefix-List to filter outgoing update to be restricted to the list below"
+                        + "! Prefix-List to filter outgoing update to be restricted to the list below (need to replace seq 1XX with increasing numbers)"
                         + Environment.NewLine + "!" + Environment.NewLine;
-                    resultString = resultString + string.Join(string.Empty, result.Select(r => "prefix-list AZURE-OUT seq 100 permit "
+                    resultString = resultString + string.Join(string.Empty, result.Select(r => "prefix-list AZURE-OUT seq 1XX permit "
                          + r.ReadableIP + "/" + r.Mask + Environment.NewLine).ToArray());
                 }
 
@@ -100,9 +104,9 @@ route-map AZURE-OUT permit 10
             }
             else // command == "Generate"
             {
-                Console.WriteLine("Toto\n");
-                
-                return File(Encoding.ASCII.GetBytes("Toto\n"), System.Net.Mime.MediaTypeNames.Application.Octet, "Toto.txt");
+                //Console.WriteLine("Toto\n");
+
+                return WebUtility.HtmlEncode("Get Data : " + outputformat + "," + command + "," + resultString);  //File(Encoding.ASCII.GetBytes("Toto\n"), System.Net.Mime.MediaTypeNames.Application.Octet, "Toto.txt");
             }
         }
     }

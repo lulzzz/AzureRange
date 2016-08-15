@@ -46,7 +46,7 @@
 
                 <div>
                     Output format:
-                    <select name="outputformat">
+                    <select id="outputformat" name="outputformat">
                         <option value="cisco-ios">Cisco IOS/IOS XE</option>
                         <option value="cisco-asa">Cisco ASA</option>
                         <option value="list-subnet-masks">List of subnet/mask</option>
@@ -55,15 +55,18 @@
                         <option value="csv-cidr">CSV list of CIDR</option>
                     </select>
                     <input id="Download" type="submit" name="command" value="Download" />
-                    <p id="vidange">VIDANGE</p>
+
                 </div>
             </div>
 
         </form>
         <p></p>
-    </div>
-    <div>
-        <textarea id="tbox">testbox</textarea>
+        <button id="showContent">Display in box</button>
+        <p></p>
+        <div>
+            <textarea id="tbox" hidden readonly rows="50" cols="250">testbox</textarea>
+        </div>
+
     </div>
     <p></p>
     <div id="backgroundText">

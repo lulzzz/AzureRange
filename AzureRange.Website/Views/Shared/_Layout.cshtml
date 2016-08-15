@@ -20,8 +20,23 @@
         window.appInsights=appInsights;
         appInsights.trackPageView();
         $(document).ready(function () {
-            $("#vidange").click(function () {
-                $("#tbox").hide(250).show(250);
+            $('#showContent').click(function () {
+                $('#tbox').show();
+                var geturl = 'generate';
+                var Command = 'generate';
+                //var Outputformat = 'cisco-asa';
+                var Outputformat = $('#outputformat').find('option:selected').val();
+                var Region = 'eastus';
+                $.get(geturl, { command: Command, outputformat: Outputformat, region:Region}, function (responseTxt, statusTxt, xhr)
+                {
+                    if (statusTxt == "success")
+    //                    alert("External content loaded successfully!");
+                        $("#tbox").html(responseTxt);
+
+                    if (statusTxt == "error")
+//                        alert("Error: " + xhr.status + ": " + xhr.statusText);
+                          $("#tbox").html("Error!");
+                });
             });
         });
 
