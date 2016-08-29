@@ -39,7 +39,11 @@
                         <div class="geographyLabel">@geography</div>
                         @foreach (var region in regions.Where(r => r.Geography == geography).OrderBy(r => r.Name))
                         {
-                            <div class="region"><label><input type="checkbox" name="region" value="@region.Id" />&nbsp;@region.Name</label></div>
+                            <div class="region">
+                                <label>
+                                    <input type="checkbox" name="region" value="@region.Id" />&nbsp;@region.Name
+                                </label>
+                            </div>
                         }
                     </div>
                 }
@@ -63,9 +67,7 @@
         <p></p>
         <button id="showContent">Display in box</button>
         <p></p>
-        <div>
-            <textarea id="tbox" hidden readonly rows="50" cols="250">testbox</textarea>
-        </div>
+        <textarea id="tbox" hidden rows="10" cols="80">Loading...</textarea>
 
     </div>
     <p></p>

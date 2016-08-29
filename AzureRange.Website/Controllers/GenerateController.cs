@@ -106,7 +106,7 @@ route-map AZURE-OUT permit 10
             {
                 //Console.WriteLine("Toto\n");
 
-                return WebUtility.HtmlEncode("Get Data : " + outputformat + "," + command + "," + resultString);  //File(Encoding.ASCII.GetBytes("Toto\n"), System.Net.Mime.MediaTypeNames.Application.Octet, "Toto.txt");
+                return WebUtility.HtmlEncode("Get Data : " + outputformat + "," + command + "," + resultString);
             }
         }
     }
