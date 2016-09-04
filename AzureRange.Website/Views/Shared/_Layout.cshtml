@@ -4,9 +4,12 @@
     <meta charset="utf-8" />
     <title>@ViewBag.Title</title>
     @Styles.Render("~/Content/css")
+    @Styles.Render("~/Content/themes/base/css")
     @Scripts.Render("~/bundles/modernizr")
     @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryui")
     @Scripts.Render("~/bundles/bootstrap")
+
     <script type="text/javascript">
         var appInsights=window.appInsights||function(config){
             function r(config){t[config]=function(){var i=arguments;t.queue.push(function(){t[config].apply(t,i)})}}var t={config:config},u=document,e=window,o="script",s=u.createElement(o),i,f;for(s.src=config.url||"//az416426.vo.msecnd.net/scripts/a/ai.0.js",u.getElementsByTagName(o)[0].parentNode.appendChild(s),t.cookie=u.cookie,t.queue=[],i=["Event","Exception","Metric","PageView","Trace"];i.length;)r("track"+i.pop());return r("setAuthenticatedUserContext"),r("clearAuthenticatedUserContext"),config.disableExceptionTracking||(i="onerror",r("_"+i),f=e[i],e[i]=function(config,r,u,e,o){var s=f&&f(config,r,u,e,o);return s!==!0&&t["_"+i](config,r,u,e,o),s}),t
@@ -16,6 +19,33 @@
         
         window.appInsights=appInsights;
         appInsights.trackPageView();
+        $(document).ready(function () {
+            $.ajaxSettings.traditional = true;
+            $('#hideContent').click(function () {
+                $('#tbox').hide(500);
+                $('#tbox').html("");
+                $(this).hide();
+            });
+            $('#showContent').click(function () {
+                $('#tbox').html("Loading...");
+                $('#tbox').show(500);
+                var Controller = 'generate';
+                var Command = 'generate';
+                var Outputformat = $('#outputformat').find('option:selected').val();
+                var Region = $('input[type=checkbox]:checked').map(function () { return this.value }).get();
+
+                $.get(Controller, { command: Command, outputformat: Outputformat, region: Region }, function (responseTxt, statusTxt, xhr)
+                {
+                    if (statusTxt == "success")
+                        $("#tbox").html(responseTxt);
+                    if (statusTxt == "error")
+                        $("#tbox").html("Error!" + xhr.statusTxt);
+                });
+                // show button to hide content
+                $('#hideContent').show();
+            });
+        });
+
     </script>
 </head>
 <body>

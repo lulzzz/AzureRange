@@ -52,7 +52,6 @@ namespace AzureRange
 
             return l_PrefixListGap;
         }
-
         public static IPPrefix GetPrefixesBetween(IPPrefix p_Prefix_LowerBound, IPPrefix p_Prefix_UpperBound)
         {
             UInt32 l_int_lastIPInBetween = p_Prefix_UpperBound.FirstIP - 1;

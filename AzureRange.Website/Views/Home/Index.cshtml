@@ -1,9 +1,7 @@
-﻿@{
-    ViewBag.Title = "Azure Range - BETA";
-}
-@using AzureRange
+﻿@using AzureRange
 
 @{ 
+    ViewBag.Title = "Azure Range - BETA";
     var regions = (List<AzureRegion>)ViewData["Regions"];
 }
 
@@ -41,14 +39,18 @@
                         <div class="geographyLabel">@geography</div>
                         @foreach (var region in regions.Where(r => r.Geography == geography).OrderBy(r => r.Name))
                         {
-                            <div class="region"><label><input type="checkbox" name="region" value="@region.Id" />&nbsp;@region.Name</label></div>
+                            <div class="region">
+                                <label>
+                                    <input type="checkbox" name="region" value="@region.Id" />&nbsp;@region.Name
+                                </label>
+                            </div>
                         }
                     </div>
                 }
 
                 <div>
                     Output format:
-                    <select name="outputformat">
+                    <select id="outputformat" name="outputformat">
                         <option value="cisco-ios">Cisco IOS/IOS XE</option>
                         <option value="cisco-asa">Cisco ASA</option>
                         <option value="list-subnet-masks">List of subnet/mask</option>
@@ -56,11 +58,23 @@
                         <option value="csv-subnet-masks">CSV list of subnet/mask</option>
                         <option value="csv-cidr">CSV list of CIDR</option>
                     </select>
-                    <input type="submit" value="Generate" />
+                    <input id="Download" type="submit" name="command" value="Download Output"/>
+
                 </div>
             </div>
 
         </form>
+        <p></p>
+        <button id="showContent">Display Output Below</button>
+        <button id="hideContent" hidden>Hide Results</button>
+        <p></p>
+        
+    </div>
+    <p></p>
+
+    <div id="TextResponse" style="width:100%">
+        @*<textarea id="tbox" style="width:100%;height:100%;max-width:inherit" hidden>Loading...</textarea>*@
+        <textarea id="tbox" style="width:100%;max-width:inherit;height:300px" hidden>Loading...</textarea>
     </div>
 
     <div id="backgroundText">

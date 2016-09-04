@@ -13,6 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureRange.Website", "Azure
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{964A5993-0CB0-4E2E-B7E2-7FC3C84CCA6B}"
 	ProjectSection(SolutionItems) = preProject
+		AzureRange.Common\IpPrefix.cs = AzureRange.Common\IpPrefix.cs
 		README.md = README.md
 	EndProjectSection
 EndProject
