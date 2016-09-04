@@ -21,14 +21,8 @@
         appInsights.trackPageView();
         $(document).ready(function () {
             $.ajaxSettings.traditional = true;
-            $('#hideContent').click(function () {
-                $('#tbox').hide(500);
-                $('#tbox').html("");
-                $(this).hide();
-            });
             $('#showContent').click(function () {
-                $('#tbox').html("Loading...");
-                $('#tbox').show(500);
+                $('#tbox').show();
                 var Controller = 'generate';
                 var Command = 'generate';
                 var Outputformat = $('#outputformat').find('option:selected').val();
@@ -37,12 +31,13 @@
                 $.get(Controller, { command: Command, outputformat: Outputformat, region: Region }, function (responseTxt, statusTxt, xhr)
                 {
                     if (statusTxt == "success")
-                        $("#tbox").html(responseTxt);
+    //                    alert("External content loaded successfully!");
+                          $("#tbox").html(responseTxt);
+
                     if (statusTxt == "error")
-                        $("#tbox").html("Error!" + xhr.statusTxt);
+//                        alert("Error: " + xhr.status + ": " + xhr.statusText);
+                          $("#tbox").html("Error!" + xhr.statusTxt);
                 });
-                // show button to hide content
-                $('#hideContent').show();
             });
         });
 

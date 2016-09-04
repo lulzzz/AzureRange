@@ -58,23 +58,21 @@
                         <option value="csv-subnet-masks">CSV list of subnet/mask</option>
                         <option value="csv-cidr">CSV list of CIDR</option>
                     </select>
-                    <input id="Download" type="submit" name="command" value="Download Output"/>
+                    <input id="Download" type="submit" name="command" value="Download" />
 
                 </div>
             </div>
 
         </form>
         <p></p>
-        <button id="showContent">Display Output Below</button>
-        <button id="hideContent" hidden>Hide Results</button>
+        <button id="showContent">Display in box</button>
         <p></p>
         
     </div>
     <p></p>
 
-    <div id="TextResponse" style="width:100%">
-        @*<textarea id="tbox" style="width:100%;height:100%;max-width:inherit" hidden>Loading...</textarea>*@
-        <textarea id="tbox" style="width:100%;max-width:inherit;height:300px" hidden>Loading...</textarea>
+    <div id="TextResponse">
+        <textarea id="tbox" hidden rows="10" cols="300" style="max-width:800px">Loading...</textarea>
     </div>
 
     <div id="backgroundText">
