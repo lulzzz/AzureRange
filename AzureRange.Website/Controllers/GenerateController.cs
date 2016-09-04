@@ -66,10 +66,12 @@ route-map AZURE-OUT permit 10
                     resultString = resultString + string.Join(string.Empty,
                         result.Select(r => "route <interface_name> " + r.ToStringLongMask() + " <interface_name_IP>" + Environment.NewLine
                         ).ToArray());
-                    resultString = resultString + "!" + Environment.NewLine
-                        + "! Prefix-List to filter outgoing update to be restricted to the list below (need to replace seq 1XX with increasing numbers)"
-                        + Environment.NewLine + "!" + Environment.NewLine;
-                    resultString = resultString + string.Join(string.Empty, result.Select(r => "prefix-list AZURE-OUT seq 1XX permit "
+                    resultString = resultString 
+                        + "!" + Environment.NewLine
+                        + "! Prefix-List to filter outgoing update to be restricted to the list below" + Environment.NewLine 
+                        + "!" + Environment.NewLine;
+                    var prefixSeqNumber = 10;
+                    resultString = resultString + string.Join(string.Empty, result.Select(r => "prefix-list AZURE-OUT seq "+ prefixSeqNumber++*10 +" permit "
                          + r.ReadableIP + "/" + r.Mask + Environment.NewLine).ToArray());
                 }
 
@@ -91,7 +93,7 @@ route-map AZURE-OUT permit 10
                 }
             }
 
-            if (command == "Download")
+            if (command == "Download Output")
             {
                 if (string.IsNullOrEmpty(resultString))
                 {
@@ -102,11 +104,13 @@ route-map AZURE-OUT permit 10
                     return File(Encoding.ASCII.GetBytes(resultString), System.Net.Mime.MediaTypeNames.Application.Octet, "AzureRange.txt");
                 }
             }
-            else // command == "Generate"
+            else if (command == "generate")
             {
-                //Console.WriteLine("Toto\n");
-
-                return WebUtility.HtmlEncode("Get Data : " + outputformat + "," + command + "," + resultString);
+                return WebUtility.HtmlEncode(resultString);
+            }
+            else
+            {
+                return WebUtility.HtmlDecode("Problem...");
             }
         }
     }
