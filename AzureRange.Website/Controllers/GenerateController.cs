@@ -102,7 +102,7 @@ route-map AZURE-OUT permit 10
                         outputFileName = outputFileName + region + "-";
                     }
                     outputFileName = outputFileName.Substring(0, outputFileName.Length - 1) + ".txt";
-                    return Json(new {count=result.Count, encodedResultString = WebUtility.HtmlEncode(resultString), fileName = outputFileName },JsonRequestBehavior.AllowGet);
+                    return Json(new {count=result.Count, encodedResultString = resultString, fileName = outputFileName },JsonRequestBehavior.AllowGet);
                 }
                 else if (command == "show")
                 {
