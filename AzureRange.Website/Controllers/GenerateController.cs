@@ -44,14 +44,14 @@ route-map AZURE-OUT permit 10
 ";
         #endregion
 
-        public object Index(string[] region, string outputformat, string command)
+        public object Index(string[] regions, string outputformat, string command)
         {
             var resultString = string.Empty;
 
-            if (region != null)
+            if (regions != null)
             {
                 var webGen = new WebGenerator(CacheConnection);
-                var result = webGen.Generate(region.ToList());
+                var result = webGen.Generate(regions.ToList());
 
                 // Cisco IOS/IOS-XR
                 if (outputformat == "cisco-ios")
@@ -92,25 +92,25 @@ route-map AZURE-OUT permit 10
                     resultString = resultString.Substring(0, resultString.Length - 1);
                 }
 
-
+                // Now deal with the command
                 if (command == "download")
                 {
-                    if (string.IsNullOrEmpty(resultString))
+                    //Generate filename
+                    var outputFileName = "Results-UTC-" + DateTime.UtcNow + "-";
+                    foreach (string region in regions)
                     {
-                        return File(Encoding.ASCII.GetBytes("No region selected."), System.Net.Mime.MediaTypeNames.Application.Octet, "Error.txt");
+                        outputFileName = outputFileName + region + "-";
                     }
-                    else
-                    {
-                        return File(Encoding.ASCII.GetBytes(resultString), System.Net.Mime.MediaTypeNames.Application.Octet, "AzureRange.txt");
-                    }
+                    outputFileName = outputFileName.Substring(0, outputFileName.Length - 1) + ".txt";
+                    return Json(new {count=result.Count, encodedResultString = WebUtility.HtmlEncode(resultString), fileName = outputFileName },JsonRequestBehavior.AllowGet);
                 }
-                else if (command == "generate")
+                else if (command == "show")
                 {
-                    return WebUtility.HtmlEncode(resultString);
+                    return Json(new {count=result.Count, encodedResultString = WebUtility.HtmlEncode(resultString) },JsonRequestBehavior.AllowGet); 
                 }
                 else
                 {
-                    return WebUtility.HtmlDecode("Unexpected operation command.");
+                    return WebUtility.HtmlEncode("Unexpected operation command.");
                 }
             }
             else

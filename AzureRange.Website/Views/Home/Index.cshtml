@@ -9,7 +9,7 @@
     <div id="headerAndLogo">
         <img id="logo" src="~/Content/shield_100.png" />
         <h1>Azure Range</h1>
-        <b>BETA v0.2</b> - Do not use on production equipment unless you understand the consequences.
+        <b>BETA v0.3</b> - Do not use on production equipment unless you understand the consequences.
         <p>
             Processed <b>@(((List<IPPrefix>)ViewData["IPPrefixInput"]).Count())</b>
             IPv4 prefixes from <a target="_blank" href="https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653">
@@ -28,55 +28,47 @@
             Code can be found on <a href="https://github.com/fchapleau/AzureRange">GitHub</a>.
         </p>
     </div>
-    
-
     <div id="generation">
-        <form action="generate" method="post">
-            <div id="geographyselection">
-                @foreach (var geography in regions.Select(r => r.Geography).Distinct().OrderBy(g => g))
-                {
-                    <div class="geography">
-                        <div class="geographyLabel">@geography</div>
-                        @foreach (var region in regions.Where(r => r.Geography == geography).OrderBy(r => r.Name))
-                        {
-                            <div class="region">
-                                <label>
-                                    <input type="checkbox" name="region" value="@region.Id" />&nbsp;@region.Name
-                                </label>
-                            </div>
-                        }
-                    </div>
-                }
-
-                <div>
-                    Output format:
-                    <select id="outputformat" name="outputformat">
-                        <option value="cisco-ios">Cisco IOS/IOS XE</option>
-                        <option value="cisco-asa">Cisco ASA</option>
-                        <option value="list-subnet-masks">List of subnet/mask</option>
-                        <option value="list-cidr">List of CIDR</option>
-                        <option value="csv-subnet-masks">CSV list of subnet/mask</option>
-                        <option value="csv-cidr">CSV list of CIDR</option>
-                    </select>
-                    <input id="Download" type="submit" name="command" value="Download Output"/>
-
+        <div id="geographyselection">
+            @foreach (var geography in regions.Select(r => r.Geography).Distinct().OrderBy(g => g))
+            {
+                <div class="geography">
+                    <div class="geographyLabel">@geography</div>
+                    @foreach (var region in regions.Where(r => r.Geography == geography).OrderBy(r => r.Name))
+                    {
+                        <div class="region">
+                            <label>
+                                <input type="checkbox" name="region" value="@region.Id" />&nbsp;@region.Name
+                            </label>
+                        </div>
+                    }
                 </div>
+            }
+            <div id="special-select">
+                <button id="checkAll">Check All</button>
+                <button id="uncheckAll">Uncheck All</button>
             </div>
+        </div>
 
-        </form>
         <p></p>
-        <button id="downloadButton">Download Output</button>
+        Output format:
+        <select id="outputformat" name="outputformat">
+            <option value="cisco-ios">Cisco IOS/IOS XE</option>
+            <option value="cisco-asa">Cisco ASA</option>
+            <option value="list-subnet-masks">List of subnet/mask</option>
+            <option value="list-cidr">List of CIDR</option>
+            <option value="csv-subnet-masks">CSV list of subnet/mask</option>
+            <option value="csv-cidr">CSV list of CIDR</option>
+        </select>
+        <button id="downloadContentButton">Download Output</button>
         <button id="showContentButton">Display Output Below</button>
-        <button id="hideContentButton" hidden>Hide Results</button>
-        <p></p>
-        
+        <button id="hideContentButton" hidden>Hide Results</button> 
     </div>
-    <p></p>
-
-    <div id="TextResponse" style="width:100%">
-        <textarea id="tbox" style="width:100%;max-width:inherit;height:300px" hidden>Loading...</textarea>
+    <div id="TextResponse" style="width:100%" hidden>
+        <p>Total number of prefixes in Microsoft's list : @(((List<IPPrefix>)ViewData["IPPrefixInput"]).Count())</p>
+        <p id="IPRangeStats">...</p>
+        <textarea id="tbox" style="width:100%;max-width:inherit;height:300px">Loading...</textarea>
     </div>
-
     <div id="backgroundText">
         <h3>Background</h3>
         <p style="margin-left:50px">
@@ -122,9 +114,7 @@
             </b>
         </p>
     </div>
-    
-
-    <div>
+    <div id="samplecode">
         <h3>Sample Code (Cisco IOS)</h3>
         <p style="margin-left:50px">
             Inside a Cisco router peering with MSEE routers, you <b>could</b> have a configuration similar to :

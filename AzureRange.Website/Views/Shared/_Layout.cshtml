@@ -20,46 +20,46 @@
         window.appInsights=appInsights;
         appInsights.trackPageView();
 
-        // Used in JS to generate download.
-        //function download(filename, text) {
-        //    var pom = document.createElement('a');
-        //    pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-        //    pom.setAttribute('download', filename);
-
-        //    if (document.createEvent) {
-        //        var event = document.createEvent('MouseEvents');
-        //        event.initEvent('click', true, true);
-        //        pom.dispatchEvent(event);
-        //    }
-        //    else {
-        //        pom.click();
-        //    }
-        //}
-
         $(document).ready(function () {
             //To ensure parameters sent to the controler don't include %20%25
             $.ajaxSettings.traditional = true;
+
+            //Check all regions if clicked
+            $('#checkAll').click(function () {
+                $("input[type=checkbox]").prop('checked', true);
+            });
+
+            //Uncheck all regions if clicked 
+            $('#uncheckAll').click(function () {
+                $("input[type=checkbox]").prop('checked', false);
+            });
+
             //Hide the box if button is clicked
             $('#hideContentButton').click(function () {
-                $('#tbox').hide(500);
+                $('#TextResponse').hide(500);
                 $('#tbox').html("");
                 $(this).hide();
             });
+
             //Show content if button is clicked.
             $('#showContentButton').click(function () {
                 var Controller = 'generate';
-                var Command = 'generate';
+                var Command = 'show';
                 var Outputformat = $('#outputformat').find('option:selected').val();
                 var Region = $('input[type=checkbox]:checked').map(function () { return this.value }).get();
                 // if at least 1 region is selected
                 if (Region.length > 0) {
                     $('#tbox').html("Loading...");
-                    $('#tbox').show(500);
+                    $('#IPRangeStats').text("Number of prefixes found ... : ");
+                    $('#TextResponse').show(500);
                     // show button to hide content
                     $('#hideContentButton').show();
-                    $.get(Controller, { command: Command, outputformat: Outputformat, region: Region }, function (responseTxt, statusTxt, xhr) {
+                    $.get(Controller, { command: Command, outputformat: Outputformat, regions: Region }, function (responseTxt, statusTxt, xhr) {
                         if (statusTxt == "success")
-                            $("#tbox").html(responseTxt);
+                        {
+                            $('#IPRangeStats').append(xhr.responseJSON["count"]);
+                            $("#tbox").html(xhr.responseJSON["encodedResultString"]);
+                        }
                         if (statusTxt == "Error")
                             $("#tbox").html("Error fetching the data!" + xhr.statusTxt);
                     });
@@ -67,8 +67,9 @@
                 else
                     alert("No Region Selected.");
             });
-            
-            $('#downloadButton').click(function () {
+
+            //DownloadButton
+            $('#downloadContentButton').click(function () {
                 var Controller = 'generate';
                 var Command = 'download';
                 var Outputformat = $('#outputformat').find('option:selected').val();
@@ -76,17 +77,17 @@
                 // Launch controller for download (command)
                 if (Region.length > 0)
                 {
-                    $.get(Controller, { command: Command, outputformat: Outputformat, region: Region }, function (responseTxt, statusTxt, xhr) {
+                    $.get(Controller, { command: Command, outputformat: Outputformat, regions: Region }, function (responseTxt, statusTxt, xhr) {
                         if (statusTxt == "success")
                         {
                             // Prepare file for download
                             var filedata = [];
-                            filedata.push(responseTxt);
+                            filedata.push(xhr.responseJSON["encodedResultString"]);
                             var properties = { type: 'plain/text' };
                             blobfile = new Blob(filedata, properties);
                             url = URL.createObjectURL(blobfile);
                             // Offer the option to open or save file
-                            window.navigator.msSaveOrOpenBlob(blobfile, "result.txt");
+                            window.navigator.msSaveOrOpenBlob(blobfile, xhr.responseJSON["fileName"]);
                         }
                         if (statusTxt == "Error")
                             Alert("Error fetching the data!" + xhr.statusTxt);
