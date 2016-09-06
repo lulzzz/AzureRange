@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,8 @@ namespace AzureRange.Website.Controllers
 {
     public class GenerateController : BaseController
     {
+
+        #region const_definition
         private const string _ciscoIOSPrefix = @"! CODE FOR IOS - CHECK IN A LAB BEFORE EXECUTING IN PRODUCTION!
 router bgp <YOUR ASN>
  bgp log-neighbor-changes
@@ -39,38 +42,41 @@ route-map AZURE-OUT permit 10
  match ip address prefix-list AZURE-OUT
 !
 ";
+        #endregion
 
-        public FileResult Index(string[] region, string outputformat)
+        public object Index(string[] regions, string outputformat, string command)
         {
             var resultString = string.Empty;
 
-            if (region != null)
+            if (regions != null)
             {
                 var webGen = new WebGenerator(CacheConnection);
-                var result = webGen.Generate(region.ToList());
+                var result = webGen.Generate(regions.ToList());
 
                 // Cisco IOS/IOS-XR
                 if (outputformat == "cisco-ios")
-                    resultString = _ciscoIOSPrefix + Environment.NewLine + 
-                        string.Join(string.Empty, 
+                    resultString = _ciscoIOSPrefix + Environment.NewLine +
+                        string.Join(string.Empty,
                         result.Select(r => "ip route " + r.ToStringLongMask() + " null0" + Environment.NewLine
                         ).ToArray());
                 // Cisco ASA
                 if (outputformat == "cisco-asa")
                 {
-                    resultString = _ciscoASAPrefix + Environment.NewLine; 
+                    resultString = _ciscoASAPrefix + Environment.NewLine;
                     resultString = resultString + string.Join(string.Empty,
                         result.Select(r => "route <interface_name> " + r.ToStringLongMask() + " <interface_name_IP>" + Environment.NewLine
                         ).ToArray());
-                    resultString = resultString + "!" + Environment.NewLine
-                        + "! Prefix-List to filter outgoing update to be restricted to the list below"
-                        + Environment.NewLine + "!" + Environment.NewLine;
-                    resultString = resultString + string.Join(string.Empty,result.Select(r => "prefix-list AZURE-OUT seq 100 permit " 
-                        + r.ReadableIP + "/" + r.Mask + Environment.NewLine).ToArray());
+                    resultString = resultString
+                        + "!" + Environment.NewLine
+                        + "! Prefix-List to filter outgoing update to be restricted to the list below" + Environment.NewLine
+                        + "!" + Environment.NewLine;
+                    var prefixSeqNumber = 10;
+                    resultString = resultString + string.Join(string.Empty, result.Select(r => "prefix-list AZURE-OUT seq " + prefixSeqNumber++ * 10 + " permit "
+                         + r.ReadableIP + "/" + r.Mask + Environment.NewLine).ToArray());
                 }
 
                 if (outputformat == "list-subnet-masks")
-                    resultString = string.Join(string.Empty, result.Select(r =>  r.ToStringLongMask() + Environment.NewLine).ToArray());
+                    resultString = string.Join(string.Empty, result.Select(r => r.ToStringLongMask() + Environment.NewLine).ToArray());
                 if (outputformat == "list-cidr")
                     resultString = string.Join(string.Empty, result.Select(r => r.ReadableIP + "/" + r.Mask + Environment.NewLine).ToArray());
                 if (outputformat == "csv-subnet-masks")
@@ -85,15 +91,31 @@ route-map AZURE-OUT permit 10
                     // remove the last "\","
                     resultString = resultString.Substring(0, resultString.Length - 1);
                 }
-            }
 
-            if (string.IsNullOrEmpty(resultString))
-            {
-                return File(Encoding.ASCII.GetBytes("No region selected."), System.Net.Mime.MediaTypeNames.Application.Octet, "Error.txt");
+                // Now deal with the command
+                if (command == "download")
+                {
+                    //Generate filename
+                    var outputFileName = "Results-UTC-" + DateTime.UtcNow + "-";
+                    foreach (string region in regions)
+                    {
+                        outputFileName = outputFileName + region + "-";
+                    }
+                    outputFileName = outputFileName.Substring(0, outputFileName.Length - 1) + ".txt";
+                    return Json(new {count=result.Count, encodedResultString = WebUtility.HtmlEncode(resultString), fileName = outputFileName },JsonRequestBehavior.AllowGet);
+                }
+                else if (command == "show")
+                {
+                    return Json(new {count=result.Count, encodedResultString = WebUtility.HtmlEncode(resultString) },JsonRequestBehavior.AllowGet); 
+                }
+                else
+                {
+                    return WebUtility.HtmlEncode("Unexpected operation command.");
+                }
             }
             else
             {
-                return File(Encoding.ASCII.GetBytes(resultString), System.Net.Mime.MediaTypeNames.Application.Octet, "AzureRange.txt");
+                return null;
             }
         }
     }

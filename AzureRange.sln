@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureRange.Console", "AzureRange.Console\AzureRange.Console.csproj", "{A2537B09-A1E4-45CA-A11F-8DD9A08DBB8B}"
 EndProject
@@ -10,6 +10,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureRange.Common.Test", "AzureRange.Common.Test\AzureRange.Common.Test.csproj", "{1DA180CD-250E-4109-A256-BFC8CD69AD6A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureRange.Website", "AzureRange.Website\AzureRange.Website.csproj", "{D6D54DDF-12FD-4654-B42C-4BD4DD74CCAD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{964A5993-0CB0-4E2E-B7E2-7FC3C84CCA6B}"
+	ProjectSection(SolutionItems) = preProject
+		AzureRange.Common\IpPrefix.cs = AzureRange.Common\IpPrefix.cs
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
