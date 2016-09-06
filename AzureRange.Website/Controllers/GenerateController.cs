@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using System.Web.Mvc;
-//test
 
 namespace AzureRange.Website.Controllers
 {
@@ -45,14 +44,14 @@ route-map AZURE-OUT permit 10
 ";
         #endregion
 
-        public object Index(string[] region, string outputformat, string command)
+        public object Index(string[] regions, string outputformat, string command)
         {
             var resultString = string.Empty;
 
-            if (region != null)
+            if (regions != null)
             {
                 var webGen = new WebGenerator(CacheConnection);
-                var result = webGen.Generate(region.ToList());
+                var result = webGen.Generate(regions.ToList());
 
                 // Cisco IOS/IOS-XR
                 if (outputformat == "cisco-ios")
@@ -67,10 +66,12 @@ route-map AZURE-OUT permit 10
                     resultString = resultString + string.Join(string.Empty,
                         result.Select(r => "route <interface_name> " + r.ToStringLongMask() + " <interface_name_IP>" + Environment.NewLine
                         ).ToArray());
-                    resultString = resultString + "!" + Environment.NewLine
-                        + "! Prefix-List to filter outgoing update to be restricted to the list below (need to replace seq 1XX with increasing numbers)"
-                        + Environment.NewLine + "!" + Environment.NewLine;
-                    resultString = resultString + string.Join(string.Empty, result.Select(r => "prefix-list AZURE-OUT seq 1XX permit "
+                    resultString = resultString
+                        + "!" + Environment.NewLine
+                        + "! Prefix-List to filter outgoing update to be restricted to the list below" + Environment.NewLine
+                        + "!" + Environment.NewLine;
+                    var prefixSeqNumber = 10;
+                    resultString = resultString + string.Join(string.Empty, result.Select(r => "prefix-list AZURE-OUT seq " + prefixSeqNumber++ * 10 + " permit "
                          + r.ReadableIP + "/" + r.Mask + Environment.NewLine).ToArray());
                 }
 
@@ -90,24 +91,31 @@ route-map AZURE-OUT permit 10
                     // remove the last "\","
                     resultString = resultString.Substring(0, resultString.Length - 1);
                 }
-            }
 
-            if (command == "Download")
-            {
-                if (string.IsNullOrEmpty(resultString))
+                // Now deal with the command
+                if (command == "download")
                 {
-                    return File(Encoding.ASCII.GetBytes("No region selected."), System.Net.Mime.MediaTypeNames.Application.Octet, "Error.txt");
+                    //Generate filename
+                    var outputFileName = "Results-UTC-" + DateTime.UtcNow + "-";
+                    foreach (string region in regions)
+                    {
+                        outputFileName = outputFileName + region + "-";
+                    }
+                    outputFileName = outputFileName.Substring(0, outputFileName.Length - 1) + ".txt";
+                    return Json(new {count=result.Count, encodedResultString = WebUtility.HtmlEncode(resultString), fileName = outputFileName },JsonRequestBehavior.AllowGet);
+                }
+                else if (command == "show")
+                {
+                    return Json(new {count=result.Count, encodedResultString = WebUtility.HtmlEncode(resultString) },JsonRequestBehavior.AllowGet); 
                 }
                 else
                 {
-                    return File(Encoding.ASCII.GetBytes(resultString), System.Net.Mime.MediaTypeNames.Application.Octet, "AzureRange.txt");
+                    return WebUtility.HtmlEncode("Unexpected operation command.");
                 }
             }
             else // command == "Generate"
             {
-                //Console.WriteLine("Toto\n");
-
-                return WebUtility.HtmlEncode("Get Data : " + outputformat + "," + command + "," + resultString);
+                return null;
             }
         }
     }
