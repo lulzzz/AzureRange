@@ -51,7 +51,7 @@ route-map AZURE-OUT permit 10
             if (regions != null)
             {
                 var webGen = new WebGenerator(CacheConnection);
-                var result = webGen.Generate(regions.ToList());
+                var result = webGen.GetComplementPrefixList(regions.ToList());
 
                 // Cisco IOS/IOS-XR
                 if (outputformat == "cisco-ios")

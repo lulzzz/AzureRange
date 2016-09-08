@@ -15,7 +15,7 @@ namespace AzureRange.Website.Controllers
         public ActionResult Index()
         {
             var webGen = new WebGenerator(CacheConnection);
-            var result = webGen.Generate(webGen.GetRegions().Select(r=>r.Id).ToList());
+            var result = webGen.GetComplementPrefixList(webGen.GetRegions().Select(r=>r.Id).ToList());
 
             ViewData["IPPrefixInput"] = webGen.CachedList;
             ViewData["Regions"] = webGen.GetRegions();
