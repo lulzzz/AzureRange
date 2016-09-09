@@ -8,7 +8,7 @@ using System.Web.Mvc;
 
 namespace AzureRange.Website.Controllers
 {
-    public class GenerateController : BaseController
+    public class GenerateComplementController : BaseController
     {
 
         #region const_definition

@@ -15,11 +15,14 @@ namespace AzureRange.Website.Controllers
         public ActionResult Index()
         {
             var webGen = new WebGenerator(CacheConnection);
-            var result = webGen.GetComplementPrefixList(webGen.GetRegions().Select(r=>r.Id).ToList());
+            var azureRegion = webGen.GetRegions();
+            //List<string> _regionList = azureRegion.Select(r => r.Id).ToList();
+            //var result = webGen.GetComplementPrefixList(_regionList);
 
-            ViewData["IPPrefixInput"] = webGen.CachedList;
-            ViewData["Regions"] = webGen.GetRegions();
-            return View(result);
+            //ViewData["IPPrefixInput"] = webGen.CachedList;
+            ViewData["Regions"] = azureRegion;
+            //return View(result);
+            return View();
         }
     }
 }
