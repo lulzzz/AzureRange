@@ -77,11 +77,10 @@ namespace AzureRange.Website
         }
         public List<AzureRegion> GetRegions()
         {
-            var list = CachedList.Select(f => f.Region).Where(f=>!string.IsNullOrWhiteSpace(f)).Distinct().OrderBy(t=>t).ToList();
-
+            var regionList = CachedList.Select(f => f.Region).Where(f=>!string.IsNullOrWhiteSpace(f)).Distinct().OrderBy(t=>t).ToList();
+            // replace with api call to or cache list using redis http://mscloudips.azurewebsites.net/api/azureips/operation/listregions
             var regionManager = new RegionManager();
-            var regions = regionManager.GetRegions(list);
-            //regions.Add(new AzureRegion { Id = "private", Name = "Private IP Address Space", Location = "n/a" });
+            var regions = regionManager.GetRegions(regionList);
             return regions;
         }
         public List<IPPrefix> GetComplementPrefixList(List<string> regions)

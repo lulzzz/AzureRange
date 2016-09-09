@@ -11,22 +11,24 @@
         <h1>Azure Range</h1>
         <b>BETA v0.3</b> - Do not use on production equipment unless you understand the consequences.
         <p>
-            Processed <b>@(((List<IPPrefix>)ViewData["IPPrefixInput"]).Count())</b>
+            @*Processed <b>@(((List<IPPrefix>)ViewData["IPPrefixInput"]).Count())</b>
             IPv4 prefixes from <a target="_blank" href="https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653">
                 Microsoft Azure Datacenter IP Prefixes
-            </a>.<br />
+            </a>.<br />*@
+            Processed IPV4 prefixes from <a target="_blank" href="https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653">
+            Microsoft Azure Datacenter IP Prefixes</a>.</br>
 
-            Found <b>@Model.Count</b> complementary subnets, which is
-            @if (Model.Count <= 4000)
+    @*Found <b>@Model.Count</b> complementary subnets, which is
+    @if (Model.Count <= 4000)
             {
-                <span>less than 4000 routes: a <u>Standard</u> ER Circuit is sufficient.</span>
-            }
-            else
-            {
-                <span>more than 4000 routes: requires a <u>Premium</u> ER Circuit.</span>
-            }<br />
-            Code can be found on <a href="https://github.com/fchapleau/AzureRange">GitHub</a>.
-        </p>
+        <span>less than 4000 routes: a <u>Standard</u> ER Circuit is sufficient.</span>
+    }
+    else
+    {
+        <span>more than 4000 routes: requires a <u>Premium</u> ER Circuit.</span>
+    }<br />*@
+    Source code can be found on <a href="https://github.com/fchapleau/AzureRange">GitHub</a>.
+</p>
     </div>
     <div id="generation">
         <div id="geographyselection">
@@ -65,7 +67,8 @@
         <button id="hideContentButton" hidden>Hide Results</button> 
     </div>
     <div id="TextResponse" style="width:100%" hidden>
-        <p>Total number of prefixes in Microsoft's list : @(((List<IPPrefix>)ViewData["IPPrefixInput"]).Count())</p>
+        @*<p id="IPRangeStatsNumberPrefixes">Total number of prefixes in Microsoft's list : @(((List<IPPrefix>)ViewData["IPPrefixInput"]).Count())</p>*@
+        <p id="IPRangeStatsNumberPrefixes">Total number of prefixes in Microsoft's... </p>
         <p id="IPRangeStats">...</p>
         <textarea id="tbox" style="width:100%;max-width:inherit;height:300px">Loading...</textarea>
     </div>

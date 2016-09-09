@@ -43,7 +43,7 @@
 
             //Show content if button is clicked.
             $('#showContentButton').click(function () {
-                var Controller = 'generate';
+                var Controller = 'generatecomplement';
                 var Command = 'show';
                 var Outputformat = $('#outputformat').find('option:selected').val();
                 var Region = $('input[type=checkbox]:checked').map(function () { return this.value }).get();
@@ -70,7 +70,7 @@
 
             //DownloadButton
             $('#downloadContentButton').click(function () {
-                var Controller = 'generate';
+                var Controller = 'generatecomplement';
                 var Command = 'download';
                 var Outputformat = $('#outputformat').find('option:selected').val();
                 var Region = $('input[type=checkbox]:checked').map(function () { return this.value }).get();
