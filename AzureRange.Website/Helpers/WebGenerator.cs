@@ -96,7 +96,7 @@ namespace AzureRange.Website
             try
             {
                 // See if results for this query were calculated before
-                cachedResult = db.StringGet(key);REMOVED TEMPORARILY
+                cachedResult = db.StringGet(key);//REMOVED TEMPORARILY
             }
             catch (TimeoutException){}
    
