@@ -153,8 +153,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\BaseController.cs" />
-    <Compile Include="Controllers\GenerateComplementController.cs" />
-    <Compile Include="Controllers\GenerateController.cs" />
+    <Compile Include="Controllers\GeneratePrefixListController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\WebGenerator.cs" />
