@@ -123,7 +123,6 @@ namespace AzureRange.Website
                     // Generate the list of networks for the region(s) and reorder it for return 
                     result = localList.OrderBy(r => r.FirstIP).ToList();
                     _telemetry.TrackMetric("GenerateNoComplement", stopWatch.Elapsed.TotalMilliseconds);
-
                 }
                 try
                 {
@@ -133,48 +132,6 @@ namespace AzureRange.Website
             }
             return result;
         }
-        //*Don't know if I should use another private member of the class...*/
-        //public List<IPPrefix> GetPrefixList(List<string> regions)
-        //{
-        //    var stopWatch = Stopwatch.StartNew();
-
-        //    var cachedResult = string.Empty;
-        //    List<IPPrefix> result = null;
-        //    var db = RedisCache.GetDatabase();
-
-        //    var key = string.Join("|", regions.ToArray());
-        //    try
-        //    {
-        //        cachedResult = db.StringGet(key);
-        //    }
-        //    catch (TimeoutException) { }
-
-        //    if (!string.IsNullOrEmpty(cachedResult))
-        //    {
-        //        result = JsonConvert.DeserializeObject<List<IPPrefix>>(cachedResult);
-        //    }
-        //    else
-        //    {
-        //        var localList = (List<IPPrefix>)CachedList.Clone();
-
-        //        localList.RemoveAll(m => !regions.Contains(m.Region));
-
-        //        // Add default subnets - mandatory to exclude 0.0.0.0/8 and class E IP addresses
-        //        localList.AddRange(GetDefaultSubnets());
-
-        //        // Return the complement of Azure Subnets
-        //        result = Generator.Not(localList);
-        //        try
-        //        {
-        //            db.StringSet(key, JsonConvert.SerializeObject(result), TimeSpan.FromHours(1));
-        //        }
-        //        catch (TimeoutException) { }
-        //    }
-
-        //    _telemetry.TrackMetric("Generate", stopWatch.Elapsed.TotalMilliseconds);
-
-        //    return result;
-        //}
 
         private List<IPPrefix> GetDefaultSubnets()
         {
