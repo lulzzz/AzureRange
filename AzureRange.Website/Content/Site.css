@@ -61,3 +61,50 @@ label { font-weight: normal; font-size: 12px}
 #headerAndLogo{
 
 }
+
+.radiobutton{
+    text-align:left;
+    width:320px;
+    display:inline-block;
+    vertical-align:top;
+}
+
+.outputformatlist{
+    text-align:left;
+    width:320px;
+    display:inline-block;
+    vertical-align:central;
+}
+
+.calculatebuttons{
+    /*width:330px;*/
+    display:inline-block;
+    vertical-align:top;
+    padding:10px;
+}
+
+.outputformat{
+    border: 1px black;
+    padding:10px;
+}
+
+#special-select{
+    padding:10px;
+}
+
+#TextResponse{
+    width:700px;
+    margin-left:140px;
+}
+
+#tbox{
+    width:100%;
+    max-width:inherit;
+    height:300px;
+}
+
+.backgroundText{
+    width:700px;
+    padding:10px;
+    margin-left:140px;
+}
