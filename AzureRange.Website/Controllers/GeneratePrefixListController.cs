@@ -12,7 +12,8 @@ namespace AzureRange.Website.Controllers
     {
 
         #region const_definition
-        private const string _ciscoIOSPrefix = @"! CODE FOR IOS - CHECK IN A LAB BEFORE EXECUTING IN PRODUCTION!
+        private const string _ciscoIOSPrefixBGPConfig = 
+@"! CODE FOR IOS - CHECK IN A LAB BEFORE EXECUTING IN PRODUCTION!
 router bgp <YOUR ASN>
  bgp log-neighbor-changes
  neighbor <PRIVATE_PEERING_EXPRESSROUTE_IP> remote-as 12076 ! ASN for ExpressRoute = 12076
@@ -24,7 +25,8 @@ router bgp <YOUR ASN>
   no synchronization
  exit-address-family
 !";
-        private const string _ciscoASAPrefix = @"! CODE FOR Cisco ASA - CHECK IN A LAB BEFORE EXECUTING IN PRODUCTION!
+        private const string _ciscoASAPrefixBGPConfig = 
+@"! CODE FOR Cisco ASA - CHECK IN A LAB BEFORE EXECUTING IN PRODUCTION!
 router bgp <YOUR ASN>
  bgp log-neighbor-changes
  !
@@ -42,6 +44,20 @@ route-map AZURE-OUT permit 10
  match ip address prefix-list AZURE-OUT
 !
 ";
+        private const string _ciscoIOSPrefixRouteConfig =
+@"! CODE FOR IOS - CHECK IN A LAB BEFORE EXECUTING IN PRODUCTION!
+! ip route statements to redirect traffic out a specific interface
+!";
+        private const string _ciscoIOSPrefixACLConfig =
+@"! CODE FOR IOS - CHECK IN A LAB BEFORE EXECUTING IN PRODUCTION!
+! ACL statements to permit traffic towards calculated prefixes
+!
+interface GigabitEthernet1
+ ip access-group AzurePublicServicesACL in
+ exit
+!
+ip access-list extended AzurePublicServicesACL
+";
         #endregion
 
         public object Index(string[] regions, string outputformat, string command, bool complement = false)
@@ -55,14 +71,14 @@ route-map AZURE-OUT permit 10
                 switch (outputformat)
                 {
                     case "cisco-ios":
-                        resultString = _ciscoIOSPrefix + Environment.NewLine +
+                        resultString = _ciscoIOSPrefixBGPConfig + Environment.NewLine +
                             string.Join(string.Empty,
                             result.Select(r => "ip route " + r.ToStringLongMask() + " null0" + Environment.NewLine
                             ).ToArray());
                         break;
 
                     case "cisco-asa":
-                        resultString = _ciscoASAPrefix + Environment.NewLine;
+                        resultString = _ciscoASAPrefixBGPConfig + Environment.NewLine;
                         resultString = resultString + string.Join(string.Empty,
                             result.Select(r => "route <interface_name> " + r.ToStringLongMask() + " <interface_name_IP>" + Environment.NewLine
                             ).ToArray());
@@ -89,6 +105,17 @@ route-map AZURE-OUT permit 10
                         resultString = string.Join(string.Empty, result.Select(r => "\"" + r.ReadableIP + "/" + r.Mask + "\",").ToArray());
                         // remove the last "\","
                         resultString = resultString.Substring(0, resultString.Length - 1);
+                        break;
+                    case "cisco-ios-route-list":
+                        resultString = _ciscoIOSPrefixRouteConfig + Environment.NewLine +
+                            string.Join(string.Empty,
+                            result.Select(r => "ip route " + r.ToStringLongMask() + " <selected_interface>" + Environment.NewLine
+                            ).ToArray());
+                        break;
+                    case "cisco-ios-acl-list":
+                        resultString = _ciscoIOSPrefixACLConfig + string.Join(string.Empty,
+                            result.Select(r => " access-list permit ip <any or your VNet address space> " + r.ToStringLongMask() +
+                            Environment.NewLine).ToArray());
                         break;
                     default:
                         break;

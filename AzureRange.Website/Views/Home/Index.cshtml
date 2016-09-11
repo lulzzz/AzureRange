@@ -9,14 +9,14 @@
     <div id="headerAndLogo">
         <img id="logo" src="~/Content/shield_100.png" />
         <h1>Azure Range</h1>
-        <b>BETA v0.3</b> - Do not use on production equipment unless you understand the consequences.
+        <b>BETA @ViewData["AppVersion"]</b> - Do not use on production equipment unless you understand the consequences.
         <p>
             @*Processed <b>@(((List<IPPrefix>)ViewData["IPPrefixInput"]).Count())</b>
             IPv4 prefixes from <a target="_blank" href="https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653">
                 Microsoft Azure Datacenter IP Prefixes
             </a>.<br />*@
             Processed IPV4 prefixes from <a target="_blank" href="https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653">
-            Microsoft Azure Datacenter IP Prefixes</a>.</br>
+            Microsoft Azure Datacenter IP Prefixes</a>.<br/>
 
     @*Found <b>@Model.Count</b> complementary subnets, which is
     @if (Model.Count <= 4000)
@@ -50,29 +50,32 @@
                 <button id="checkAll">Check All</button>
                 <button id="uncheckAll">Uncheck All</button>
             </div>
+            <div class="outputformat">
+                <div id="working-mode" class="radiobutton">
+                    <input type="radio" id="complement-wm" name="working-mode" checked />Generate Complement Prefix List<br />
+                    <input type="radio" id="non-complement-wm" name="working-mode" />Generate Prefix List<br />
+                </div>
+                <div class="outputformatlist">
+                    Output format:
+                    <select id="outputformat" name="outputformat" style="width:220px" hidden></select>
+                </div>
+            </div>
+            <div class="calculatebuttons">
+                <button id="downloadContentButton">Download Output</button>
+                <button id="showContentButton">Display Output</button>
+                <button id="hideContentButton" hidden>Hide Results</button>
+            </div>
         </div>
 
         <p></p>
-        Output format:
-        <select id="outputformat" name="outputformat">
-            <option value="cisco-ios">Cisco IOS/IOS XE</option>
-            <option value="cisco-asa">Cisco ASA</option>
-            <option value="list-subnet-masks">List of subnet/mask</option>
-            <option value="list-cidr">List of CIDR</option>
-            <option value="csv-subnet-masks">CSV list of subnet/mask</option>
-            <option value="csv-cidr">CSV list of CIDR</option>
-        </select>
-        <button id="downloadContentButton">Download Output</button>
-        <button id="showContentButton">Display Output</button>
-        <button id="hideContentButton" hidden>Hide Results</button> 
     </div>
-    <div id="TextResponse" style="width:100%" hidden>
-        @*<p id="IPRangeStatsNumberPrefixes">Total number of prefixes in Microsoft's list : @(((List<IPPrefix>)ViewData["IPPrefixInput"]).Count())</p>*@
-        <p id="IPRangeStatsNumberPrefixes">Total number of prefixes in Microsoft's... </p>
+    <div id="TextResponse" hidden>
+        <p></p>
         <p id="IPRangeStats">...</p>
-        <textarea id="tbox" style="width:100%;max-width:inherit;height:300px">Loading...</textarea>
+        @*<textarea id="tbox" style="width:100%;max-width:inherit;height:300px">Loading...</textarea>*@
+        <textarea id="tbox">Loading...</textarea>
     </div>
-    <div id="backgroundText">
+    <div id="backgroundText" class="backgroundText">
         <h3>Background</h3>
         <p style="margin-left:50px">
             Often because of security reasons, many customers choose to enable « forced tunneling » when it comes to ExpressRoute
@@ -117,7 +120,7 @@
             </b>
         </p>
     </div>
-    <div id="samplecode">
+    <div id="samplecode" class="backgroundText">
         <h3>Sample Code (Cisco IOS)</h3>
         <p style="margin-left:50px">
             Inside a Cisco router peering with MSEE routers, you <b>could</b> have a configuration similar to :
