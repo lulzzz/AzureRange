@@ -18,13 +18,11 @@ namespace AzureRange.Website
             RedisCache = connection;
             _telemetry = new Microsoft.ApplicationInsights.TelemetryClient();
         }
-
         public IConnectionMultiplexer RedisCache
         {
             get;
             private set;
         }
-
         private List<IPPrefix> _localList;
         public List<IPPrefix> CachedList
         {
@@ -77,34 +75,31 @@ namespace AzureRange.Website
                 _localList = value;
             }
         }
-
         public List<AzureRegion> GetRegions()
         {
-            var list = CachedList.Select(f => f.Region).Where(f=>!string.IsNullOrWhiteSpace(f)).Distinct().OrderBy(t=>t).ToList();
-
+            var regionList = CachedList.Select(f => f.Region).Where(f=>!string.IsNullOrWhiteSpace(f)).Distinct().OrderBy(t=>t).ToList();
+            // replace with api call to or cache list using redis http://mscloudips.azurewebsites.net/api/azureips/operation/listregions
             var regionManager = new RegionManager();
-            var regions = regionManager.GetRegions(list);
-            //regions.Add(new AzureRegion { Id = "private", Name = "Private IP Address Space", Location = "n/a" });
+            var regions = regionManager.GetRegions(regionList);
             return regions;
         }
-
-        public List<IPPrefix> Generate(List<string> regions)
+        public List<IPPrefix> GetComplementPrefixList(List<string> regions, bool complement)
         {
             var stopWatch = Stopwatch.StartNew();
 
             var cachedResult = string.Empty;
             List<IPPrefix> result = null;
             var db = RedisCache.GetDatabase();
-            
-            var key = string.Join("|",regions.ToArray());
+            // Create the key for RedisCache
+            var key = string.Join("|",regions.ToArray()) + complement.ToString();
+
             try
             {
-                cachedResult = db.StringGet(key);
+                // See if results for this query were calculated before
+                cachedResult = db.StringGet(key);//REMOVED TEMPORARILY
             }
             catch (TimeoutException){}
-            
-
-
+   
             if (!string.IsNullOrEmpty(cachedResult))
             {
                 result = JsonConvert.DeserializeObject<List<IPPrefix>>(cachedResult);
@@ -114,28 +109,30 @@ namespace AzureRange.Website
                 var localList = (List<IPPrefix>)CachedList.Clone();
 
                 localList.RemoveAll(m => !regions.Contains(m.Region));
-
-                // Add default subnets - mandatory to exclude 0.0.0.0/0 and class E IP addresses
-                localList.AddRange(GetDefaultSubnets());
-                
-                // Add private subnets
-                //if (regions.Contains("private"))
-                //    localList.AddRange(GetPrivateSubnets());
-
                 // Return the complement of Azure Subnets
-                result = Generator.Not(localList);
+                if (complement)
+                {
+                    // Add default subnets - mandatory to exclude 0.0.0.0/8 and class E IP addresses
+                    localList.AddRange(GetDefaultSubnets());
+                    // Calculate the complement and return it
+                    result = Generator.Not(localList);
+                    _telemetry.TrackMetric("GenerateComplement", stopWatch.Elapsed.TotalMilliseconds);
+                }
+                else
+                {
+                    // Generate the list of networks for the region(s) and reorder it for return 
+                    result = localList.OrderBy(r => r.FirstIP).ToList();
+                    _telemetry.TrackMetric("GenerateNoComplement", stopWatch.Elapsed.TotalMilliseconds);
+                }
                 try
                 {
                     db.StringSet(key, JsonConvert.SerializeObject(result), TimeSpan.FromHours(1));
                 }
                 catch (TimeoutException) { }
             }
-
-            _telemetry.TrackMetric("Generate", stopWatch.Elapsed.TotalMilliseconds);
-            // _telemetry.TrackMetric ("REQUESTING IP!!", client.IP);
-
             return result;
         }
+
         private List<IPPrefix> GetDefaultSubnets()
         {
             var ipPPrefixesInput = new List<IPPrefix>();
@@ -143,14 +140,5 @@ namespace AzureRange.Website
             ipPPrefixesInput.Add(new IPPrefix("224.0.0.0/3"));
             return ipPPrefixesInput;
         }
-        /*private List<IPPrefix> GetPrivateSubnets()
-        {
-            var ipPPrefixesInput = new List<IPPrefix>();
-            ipPPrefixesInput.Add(new IPPrefix("10.0.0.0/8"));
-            ipPPrefixesInput.Add(new IPPrefix("172.16.0.0/12"));
-            ipPPrefixesInput.Add(new IPPrefix("169.254.0.0/16"));
-            ipPPrefixesInput.Add(new IPPrefix("192.168.0.0/16"));
-            return ipPPrefixesInput;
-        }*/
     }
 }

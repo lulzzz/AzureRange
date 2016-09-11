@@ -8,27 +8,27 @@ namespace AzureRange
 {
     public class Generator
     {
-        public static List<IPPrefix> Not(List<IPPrefix> p_PrefixList)
+        public static List<IPPrefix> Not(List<IPPrefix> PrefixList)
         {
             //variable declaration
-            List<IPPrefix> l_complementPrefixList = new List<IPPrefix>();
-            IPPrefix l_previousPrefix;
+            List<IPPrefix> complementPrefixList = new List<IPPrefix>();
+            IPPrefix previousPrefix;
             
             // Order the prefix list in numeric order
-            l_previousPrefix = p_PrefixList.OrderBy(r => r.FirstIP).First();
+            previousPrefix = PrefixList.OrderBy(r => r.FirstIP).First();
             
             // For each prefix, find the gap... 
-            foreach (IPPrefix l_currentPrefix in p_PrefixList.OrderBy(r => r.FirstIP))
+            foreach (IPPrefix currentPrefix in PrefixList.OrderBy(r => r.FirstIP))
             {
-                if (l_previousPrefix != null)
+                if (previousPrefix != null)
                 {
-                    var l_complementPrefix = ProcessGap(l_previousPrefix, l_currentPrefix);
+                    var l_complementPrefix = ProcessGap(previousPrefix, currentPrefix);
                     if (l_complementPrefix != null)
-                        l_complementPrefixList.AddRange(l_complementPrefix);
+                        complementPrefixList.AddRange(l_complementPrefix);
                 }
-                l_previousPrefix = l_currentPrefix;
+                previousPrefix = currentPrefix;
             }
-            return l_complementPrefixList.OrderBy(r => r.FirstIP).ToList();
+            return complementPrefixList.OrderBy(r => r.FirstIP).ToList();
         }
         public static List<IPPrefix> ProcessGap(IPPrefix p_Prefix_PreviousPrefix, IPPrefix p_CurrentPrefix)
         {
