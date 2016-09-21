@@ -14,25 +14,36 @@ namespace AzureRange
     {
         public static List<IPPrefix> Download()
         {
-            string downloadPage = "https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653";
+            string downloadPageAzureCloud = "https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653";
+            string downloadPageAzureChinaCloud = "https://www.microsoft.com/en-ca/download/confirmation.aspx?id=42064";
+            List<IPPrefix> IPPrefixes = new List<IPPrefix>();
+
+            IPPrefixes.AddRange(AddXMLMSInputFile(downloadPageAzureCloud));
+            IPPrefixes.AddRange(AddXMLMSInputFile(downloadPageAzureChinaCloud));
+
+            return IPPrefixes;
+        }
+
+        private static List<IPPrefix> AddXMLMSInputFile(string downloadURL)
+        {
             string dlUrl = string.Empty;
             string dlContent = string.Empty;
             List<IPPrefix> IPPrefixes = new List<IPPrefix>();
 
             using (var wc = new WebClient())
             {
-                dlUrl = wc.DownloadString(downloadPage);
+                dlUrl = wc.DownloadString(downloadURL);
                 var result = Regex.Match(dlUrl, "url=(.*)\"");
                 dlUrl = result.Groups[1].Value;
                 dlContent = wc.DownloadString(dlUrl);
             }
 
-            /*
-            using (streamReader = new StreamReader(@"c:\Users\omartin2\Downloads\PublicIPs_20160719.xml", Encoding.UTF8))
-            {
-                dlContent = streamReader.ReadToEnd();
-            }*/
-            
+            //For using when testint offline
+            //using (streamReader = new StreamReader(@"c:\Users\omartin2\Downloads\PublicIPs_20160719.xml", Encoding.UTF8))
+            //{
+            //    dlContent = streamReader.ReadToEnd();
+            //}
+
             var xContent = XDocument.Load(new StringReader(dlContent));     // XML document containing the list 
 
             // Looing in the document sections
@@ -47,7 +58,6 @@ namespace AzureRange
                     IPPrefixes.Add(prefix);
                 }
             }
-
             return IPPrefixes;
         }
     }
