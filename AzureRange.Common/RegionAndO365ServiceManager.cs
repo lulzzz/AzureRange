@@ -5,8 +5,11 @@ using System.Web;
 
 namespace AzureRange.Website
 {
-    public class RegionManager
+    public class RegionAndO365ServiceManager
     {
+        /// <summary>
+        /// Detailed Azure Regions Descriptions
+        /// </summary>
         private List<string> _regionsLocations = new List<string> {
             "uscentral,Central US,Iowa,42.0747,-93.49997,US",
             "useast,East US,Virginia,37.51282,-78.69794,US",
@@ -39,11 +42,37 @@ namespace AzureRange.Website
             "japaneast,Japan East,Tokyo,35.68993,139.6918,Japan",
             "japanwest,Japan West,Osaka,34.67752,135.5129,Japan"
         };
+        /// <summary>
+        /// Detailed Service description
+        /// </summary>
+        private List<string> _o365Service = new List<string> {
+            "WAC,Office Online,Office 365",
+            "o365,Office 365 Authentication Identity Portal and Shared Services,Office 365",
+            "EXO,Exchange Online,Office 365",
+            "LYO,Skype for Business Online,Office 365",
+            "SPO,SharePoint Online and OneDrive for Business,Office 365",
+            "Yammer,Yammer,Office 365",
+            "RCA,Remote Connectivity Analyzer,Office 365",
+            "OfficeiPad,Office for iPad",
+            "OfficeMobile,Office Mobile",
+            "ProPlus,Office ProPlus Download,Office 365",
+            "EX-Fed,Microsoft Federation Gateway (to be confirmed),Office 365",
+            "EOP,Exchange Online Protection,Office 365"
+        };
 
-        public List<AzureRegion> GetRegions(List<string> list)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="regionList"> list of regions
+        /// </param>
+        /// <returns>
+        /// function returns the list of regions objects along with detailed description (coordinates, etc.)
+        /// </returns>
+        public List<AzureRegion> GetAzureRegions(List<string> regionList)
+
         {
             List<AzureRegion> regions = new List<AzureRegion>();
-            foreach(var regionName in list)
+            foreach(var regionName in regionList)
             {
                 var line = _regionsLocations.FirstOrDefault(r => r.StartsWith(regionName));
                 if (!string.IsNullOrWhiteSpace(line))
@@ -62,5 +91,33 @@ namespace AzureRange.Website
             }
             return regions;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="o365serviceList"> list of o365 services, a string
+        /// </param>
+        /// <returns>
+        /// function returns the list of o365 services along with detailed description (returns the objects)
+        /// </returns>
+        public List<O365Service> GetO365Services(List<string> o365serviceList)
+        {
+            List<O365Service> o365services = new List<O365Service>();
+            foreach (var serviceName in o365serviceList)
+            {
+                var line = _o365Service.FirstOrDefault(r => r.StartsWith(serviceName));
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    var splittedLine = line.Split(',');
+                    o365services.Add(new O365Service
+                    {
+                        Id = serviceName,
+                        Name = splittedLine[1]
+                    });
+                }
+            }
+            return o365services;
+        }
+
     }
 }

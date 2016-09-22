@@ -31,7 +31,7 @@
         var optBoth4 = "<option class='both' value='csv-cidr'>CSV list of CIDR</option>";
 
         function initLoad() {
-            $('#complement-wm').trigger("click");
+            $('#non-complement-wm').trigger("click");
         }
 
         $(document).ready(function () {
@@ -57,13 +57,23 @@
             })
 
             //Check all regions if clicked
-            $('#checkAll').click(function () {
-                $("input[type=checkbox]").prop('checked', true);
+            $('#checkAllregion').click(function () {
+                $("input[name=regionchk]").prop('checked', true);
             });
 
             //Uncheck all regions if clicked 
-            $('#uncheckAll').click(function () {
-                $("input[type=checkbox]").prop('checked', false);
+            $('#uncheckAllregion').click(function () {
+                $("input[name=regionchk]").prop('checked', false);
+            });
+
+            //Check all o365 services if clicked
+            $('#checkAllO365').click(function () {
+                $("input[name=o365servicechk]").prop('checked', true);
+            });
+
+            //Uncheck all o365 services if clicked 
+            $('#uncheckAllO365').click(function () {
+                $("input[name=o365servicechk]").prop('checked', false);
             });
 
             //Hide the box if button is clicked
@@ -78,9 +88,10 @@
                 var Controller = 'generateprefixlist';
                 var Command = 'show';
                 var Outputformat = $('#outputformat').find('option:selected').val();
-                var Region = $('input[type=checkbox]:checked').map(function () { return this.value }).get();
+                var Region = $('input[name=regionchk]:checked').map(function () { return this.value }).get();
+                var O365svc = $('input[name=o365servicechk]:checked').map(function () { return this.value }).get();
                 // if at least 1 region is selected
-                if (Region.length > 0) {
+                if (Region.length > 0 || O365svc.length > 0) {
                     $('#tbox').html("Loading...");
                     switch (calculateComp){
                         case true:
@@ -93,7 +104,7 @@
                     $('#TextResponse').show(500);
                     // show button to hide content
                     $('#hideContentButton').show();
-                    $.get(Controller, { command: Command, outputformat: Outputformat, regions: Region, complement: calculateComp }, function (responseTxt, statusTxt, xhr) {
+                    $.get(Controller, { command: Command, outputformat: Outputformat, regions: Region, o365services: O365svc, complement: calculateComp }, function (responseTxt, statusTxt, xhr) {
                         if (statusTxt == "success")
                         {
                             $('#IPRangeStats').append(xhr.responseJSON["count"]);
@@ -104,7 +115,7 @@
                     });
                 }
                 else
-                    alert("No Region Selected.");
+                    alert("No Region or Office 365 Service Selected.");
             });
 
             //DownloadButton
@@ -112,11 +123,12 @@
                 var Controller = 'generateprefixlist';
                 var Command = 'download';
                 var Outputformat = $('#outputformat').find('option:selected').val();
-                var Region = $('input[type=checkbox]:checked').map(function () { return this.value }).get();
+                var Region = $('input[name=regionchk]:checked').map(function () { return this.value }).get();
+                var O365svc = $('input[name=o365servicechk]:checked').map(function () { return this.value }).get();
                 // Launch controller for download (command)
-                if (Region.length > 0)
+                if (Region.length > 0 || O365svc.length > 0)
                 {
-                    $.get(Controller, { command: Command, outputformat: Outputformat, regions: Region, complement: calculateComp }, function (responseTxt, statusTxt, xhr) {
+                    $.get(Controller, { command: Command, outputformat: Outputformat, regions: Region, o365services: O365svc, complement: calculateComp }, function (responseTxt, statusTxt, xhr) {
                         if (statusTxt == "success")
                         {
                             // Prepare file for download
@@ -134,7 +146,7 @@
                 }
                 else
                 {
-                    alert("No Region Selected.");
+                    alert("No Region or Office 365 Service Selected.");
                 }
             });
         });

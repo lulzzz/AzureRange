@@ -18,12 +18,15 @@ namespace AzureRange.Website.Controllers
             // replace this call with http://mscloudips.azurewebsites.net/api/azureips/operation/listregions
 
             var azureRegion = webGen.GetRegions();
+            var o365Services = webGen.GetO365Services();
+
             //List<string> _regionList = azureRegion.Select(r => r.Id).ToList();
             //var result = webGen.GetComplementPrefixList(_regionList);
             //ViewData["IPPrefixInput"] = webGen.CachedList;
 
             ViewData["AppVersion"] = ConfigurationManager.AppSettings["AppVersion"];
             ViewData["Regions"] = azureRegion;
+            ViewData["O365services"] = o365Services;
             //return View(result);
             return View();
         }

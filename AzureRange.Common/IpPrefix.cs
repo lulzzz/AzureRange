@@ -17,13 +17,12 @@ namespace AzureRange
             FirstIP = pUInt32_Network;
             Mask = pInt_Mask;
         }
-
-        public IPPrefix (string pStrRawPrefix)
+        public IPPrefix (string RawPrefix)
         {
-            RawPrefix = pStrRawPrefix;
-            RawPrefixSubnet = RawPrefix.Substring(0, RawPrefix.IndexOf("/"));
+            this.RawPrefix = RawPrefix;
+            RawPrefixSubnet = this.RawPrefix.Substring(0, this.RawPrefix.IndexOf("/"));
 
-            Mask = Convert.ToInt32(RawPrefix.Substring(RawPrefix.IndexOf("/") + 1));
+            Mask = Convert.ToInt32(this.RawPrefix.Substring(this.RawPrefix.IndexOf("/") + 1));
 
             #region FirstIp conversion
 
@@ -36,13 +35,25 @@ namespace AzureRange
 
             #endregion
         }
-
-        public IPPrefix (string pStrRegion, string pStrRawPrefix)
+        public IPPrefix (string RegionOrO365Service, string pStrRawPrefix, bool isAzure)
         {
-            Region = pStrRegion;
+            if (isAzure)
+            {
+                Region = RegionOrO365Service;
+                O365Service = null;
+            }
+            else
+            {
+                Region = null;
+                O365Service = RegionOrO365Service;
+            }
             RawPrefix = pStrRawPrefix;
-            RawPrefixSubnet = RawPrefix.Substring(0, RawPrefix.IndexOf("/"));
 
+            // if no / is present, add /32
+            if (RawPrefix.IndexOf("/") == -1)
+                RawPrefix = RawPrefix + "/32";
+
+            RawPrefixSubnet = RawPrefix.Substring(0, RawPrefix.IndexOf("/"));
             Mask = Convert.ToInt32(RawPrefix.Substring(RawPrefix.IndexOf("/")+1));
 
             var subnetParts = RawPrefixSubnet.Split('.');
@@ -53,6 +64,7 @@ namespace AzureRange
             FirstIP = subnetDecimal;
         }
 
+        public string O365Service { get; set; }
         public string Region { get; set; }
         public string RawPrefix { get; set; }
         public string RawPrefixSubnet { get; set; }
@@ -79,8 +91,8 @@ namespace AzureRange
         {
             get
             {
-                var mask = ~(0xFFFFFFFF >> Mask);
-
+                // If mask == 32, does it overloads to 0...
+                var mask = Mask < 32 ? ~(0xFFFFFFFF >> Mask) : 0xFFFFFFFF;
                 return IPAddress.Parse(mask.ToString()).ToString();
             }
         }

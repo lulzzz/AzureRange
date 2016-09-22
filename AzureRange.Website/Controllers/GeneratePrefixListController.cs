@@ -60,14 +60,36 @@ ip access-list extended AzurePublicServicesACL
 ";
         #endregion
 
-        public object Index(string[] regions, string outputformat, string command, bool complement = false)
+        public object Index(string[] regions, string[] o365services, string outputformat, string command, bool complement = false)
         {
             var resultString = string.Empty;
 
-            if (regions != null)
+            if (regions != null || o365services != null)
             {
                 var webGen = new WebGenerator(CacheConnection);
-                var result = webGen.GetComplementPrefixList(regions.ToList(),complement);
+                // Combine services + regions in one array
+                //int regionsLength = regions ?? 0;
+                //int o365servicesLength = o365services.Length ??0;
+                var emptyStringArray = new string[0];
+                int test = 0;
+                test += regions == null ? 0: regions.Length;
+                test += o365services == null ? 0: o365services.Length;
+
+                var regionsAndServices = new string[test];
+                //var regionsAndServices = new string[(int?)regions.Length ?? 0+ (int?)o365services.Length ?? 0];
+
+                if (regions != null)
+                    Array.Copy(regions, 0, regionsAndServices, 0, regions.Length);
+                    //Array.Copy(regions != null ? regions : emptyStringArray, 0, regionsAndServices, 0, regions == null ? 0 : regions.Length);
+
+                if (o365services != null)
+                    // Add regions to the array
+                    //Array.Copy(o365services != null ? o365services : emptyStringArray, 0, regionsAndServices, (int?)regions.Length ?? 0, o365services == null ? 0 : o365services.Length);
+                    Array.Copy(o365services, 0, regionsAndServices, regions == null ? 0 : regions.Length, o365services.Length);
+
+                // Get the resulting output
+                var result = webGen.GetComplementPrefixList(regionsAndServices.ToList(),complement);
+                // Display it
                 switch (outputformat)
                 {
                     case "cisco-ios":

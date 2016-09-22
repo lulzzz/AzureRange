@@ -16,15 +16,18 @@ namespace AzureRange
         {
             string downloadPageAzureCloud = "https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653";
             string downloadPageAzureChinaCloud = "https://www.microsoft.com/en-ca/download/confirmation.aspx?id=42064";
+            string downloadPageO365Cloud = "http://go.microsoft.com/fwlink/?LinkId=533185";
+
             List<IPPrefix> IPPrefixes = new List<IPPrefix>();
 
-            IPPrefixes.AddRange(AddXMLMSInputFile(downloadPageAzureCloud));
-            IPPrefixes.AddRange(AddXMLMSInputFile(downloadPageAzureChinaCloud));
+            IPPrefixes.AddRange(AddXMLMSInputFileAzure(downloadPageAzureCloud));
+            IPPrefixes.AddRange(AddXMLMSInputFileAzure(downloadPageAzureChinaCloud));
+            IPPrefixes.AddRange(AddXMLMSInputFileO365(downloadPageO365Cloud));
 
             return IPPrefixes;
         }
 
-        private static List<IPPrefix> AddXMLMSInputFile(string downloadURL)
+        private static List<IPPrefix> AddXMLMSInputFileAzure(string downloadURL)
         {
             string dlUrl = string.Empty;
             string dlContent = string.Empty;
@@ -53,9 +56,40 @@ namespace AzureRange
                 {
                     var prefix = new IPPrefix(
                         xRegion.Attributes("Name").First().Value,
-                        xIPPrefix.Attributes("Subnet").First().Value
+                        xIPPrefix.Attributes("Subnet").First().Value,true
                     );
                     IPPrefixes.Add(prefix);
+                }
+            }
+            return IPPrefixes;
+        }
+        private static List<IPPrefix> AddXMLMSInputFileO365(string downloadURL)
+        {
+            string dlUrl = string.Empty;
+            string dlContent = string.Empty;
+            List<IPPrefix> IPPrefixes = new List<IPPrefix>();
+
+            using (var wc = new WebClient())
+            {
+                dlContent = wc.DownloadString(downloadURL);
+            }
+
+            var xContent = XDocument.Load(new StringReader(dlContent));     // XML document containing the list 
+
+            // Looping in the document sections
+            foreach (var xO365ProductName in xContent.Elements().First().Elements())
+            {
+                foreach (var xAddressType in xO365ProductName.Elements())
+                {
+                    if (xAddressType.FirstAttribute.Value == "IPv4")
+                    {
+                        foreach (var xIPPrefix in xAddressType.Elements())
+                        {
+                            var prefix = 
+                                new IPPrefix(xO365ProductName.FirstAttribute.Value,xIPPrefix.Value, false);
+                            IPPrefixes.Add(prefix);
+                        }
+                    }
                 }
             }
             return IPPrefixes;
