@@ -35,7 +35,10 @@ namespace AzureRange.Website
             "canadacentral,Canada Central,Toronto,43.65317,-79.3827,Canada",
             "canadaeast,Canada East,Quebec City,46.81332,-71.20937,Canada",
             "uksouth,United Kingdon South,London,51.500152,-1.126236,United Kingdom",
-            "ukwest,United Kingdom West,Cardiff,51.481307,-3.180498,United Kingdom"};
+            "ukwest,United Kingdom West,Cardiff,51.481307,-3.180498,United Kingdom",
+            "japaneast,Japan East,Tokyo,35.68993,139.6918,Japan",
+            "japanwest,Japan West,Osaka,34.67752,135.5129,Japan"
+        };
 
         public List<AzureRegion> GetRegions(List<string> list)
         {

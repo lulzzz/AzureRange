@@ -13,6 +13,15 @@ namespace AzureRange.Website
     public class WebGenerator
     {
         private TelemetryClient _telemetry;
+        private List<IPPrefix> _localList;
+        private List<IPPrefix> GetDefaultSubnets()
+        {
+            var ipPPrefixesInput = new List<IPPrefix>();
+            ipPPrefixesInput.Add(new IPPrefix("0.0.0.0/8"));
+            ipPPrefixesInput.Add(new IPPrefix("224.0.0.0/3"));
+            return ipPPrefixesInput;
+        }
+
         public WebGenerator(IConnectionMultiplexer connection)
         {
             RedisCache = connection;
@@ -23,7 +32,6 @@ namespace AzureRange.Website
             get;
             private set;
         }
-        private List<IPPrefix> _localList;
         public List<IPPrefix> CachedList
         {
             get
@@ -45,6 +53,7 @@ namespace AzureRange.Website
 
                 _telemetry.TrackDependency("Redis", "GetRanges", DateTime.Now, stopWatch.Elapsed, true);
 
+                //if (string.IsNullOrEmpty(jsonIpPrefixList))
                 if (!string.IsNullOrEmpty(jsonIpPrefixList))
                 {
                     return JsonConvert.DeserializeObject<List<IPPrefix>>(jsonIpPrefixList);
@@ -96,7 +105,7 @@ namespace AzureRange.Website
             try
             {
                 // See if results for this query were calculated before
-                cachedResult = db.StringGet(key);//REMOVED TEMPORARILY
+                cachedResult = db.StringGet(key);
             }
             catch (TimeoutException){}
    
@@ -131,14 +140,6 @@ namespace AzureRange.Website
                 catch (TimeoutException) { }
             }
             return result;
-        }
-
-        private List<IPPrefix> GetDefaultSubnets()
-        {
-            var ipPPrefixesInput = new List<IPPrefix>();
-            ipPPrefixesInput.Add(new IPPrefix("0.0.0.0/8"));
-            ipPPrefixesInput.Add(new IPPrefix("224.0.0.0/3"));
-            return ipPPrefixesInput;
         }
     }
 }
