@@ -5,6 +5,8 @@
     var regions = (List<AzureRegion>)ViewData["Regions"];
 }
 
+
+
 <div>
     <div id="headerAndLogo">
         <img id="logo" src="~/Content/shield_100.png" />
@@ -30,45 +32,47 @@
     Source code can be found on <a href="https://github.com/fchapleau/AzureRange">GitHub</a>.
 </p>
     </div>
-    <div id="generation">
-        <div id="geographyselection">
-            @foreach (var geography in regions.Select(r => r.Geography).Distinct().OrderBy(g => g))
+    <form action="/Download/">
+        <div id="generation">
+            <div id="geographyselection">
+                @foreach (var geography in regions.Select(r => r.Geography).Distinct().OrderBy(g => g))
             {
-                <div class="geography">
-                    <div class="geographyLabel">@geography</div>
-                    @foreach (var region in regions.Where(r => r.Geography == geography).OrderBy(r => r.Name))
-                    {
-                        <div class="region">
-                            <label>
-                                <input type="checkbox" name="region" value="@region.Id" />&nbsp;@region.Name
-                            </label>
-                        </div>
-                    }
+                    <div class="geography">
+                        <div class="geographyLabel">@geography</div>
+                        @foreach (var region in regions.Where(r => r.Geography == geography).OrderBy(r => r.Name))
+                        {
+                            <div class="region">
+                                <label>
+                                    <input type="checkbox" name="region" value="@region.Id" />&nbsp;@region.Name
+                                </label>
+                            </div>
+                        }
+                    </div>
+                }
+                <div id="special-select">
+                    <button id="checkAll">Check All</button>
+                    <button id="uncheckAll">Uncheck All</button>
                 </div>
-            }
-            <div id="special-select">
-                <button id="checkAll">Check All</button>
-                <button id="uncheckAll">Uncheck All</button>
-            </div>
-            <div class="outputformat">
-                <div id="working-mode" class="radiobutton">
-                    <input type="radio" id="complement-wm" name="working-mode" checked />Generate Complement Prefix List<br />
-                    <input type="radio" id="non-complement-wm" name="working-mode" />Generate Prefix List<br />
+                <div class="outputformat">
+                    <div id="working-mode" class="radiobutton">
+                        <input type="radio" id="complement-wm" name="working-mode" checked />Generate Complement Prefix List<br />
+                        <input type="radio" id="non-complement-wm" name="working-mode" />Generate Prefix List<br />
+                    </div>
+                    <div class="outputformatlist">
+                        Output format:
+                        <select id="outputformat" name="outputformat" style="width:220px" hidden></select>
+                    </div>
                 </div>
-                <div class="outputformatlist">
-                    Output format:
-                    <select id="outputformat" name="outputformat" style="width:220px" hidden></select>
+                <div class="calculatebuttons">
+                    <input type="submit" value="Download Output" />
+                    <button id="showContentButton">Display Output</button>
+                    <button id="hideContentButton" hidden>Hide Results</button>
                 </div>
             </div>
-            <div class="calculatebuttons">
-                <button id="downloadContentButton">Download Output</button>
-                <button id="showContentButton">Display Output</button>
-                <button id="hideContentButton" hidden>Hide Results</button>
-            </div>
-        </div>
 
-        <p></p>
-    </div>
+            <p></p>
+        </div>
+    </form>
     <div id="TextResponse" hidden>
         <p></p>
         <p id="IPRangeStats">...</p>
