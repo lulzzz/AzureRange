@@ -139,10 +139,16 @@ ip access-list extended AzurePublicServicesACL
                     case "download":
                         //Generate filename
                         var outputFileName = "Results-UTC-" + DateTime.UtcNow + "-";
-                        foreach (string region in regions)
-                        {
-                            outputFileName = outputFileName + region + "-";
-                        }
+                        if (regions !=null)
+                            foreach (string region in regions)
+                            {
+                                outputFileName += region + "-";
+                            }
+                        if (o365services != null)
+                            foreach (string o365service in o365services)
+                            {
+                                outputFileName += o365service + "-";
+                            }
                         outputFileName = outputFileName.Substring(0, outputFileName.Length - 1) + ".txt";
                         return Json(new { count = result.Count, encodedResultString = resultString, fileName = outputFileName }, JsonRequestBehavior.AllowGet);
                     case "show":
