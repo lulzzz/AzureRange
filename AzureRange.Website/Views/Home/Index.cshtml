@@ -31,7 +31,9 @@
     Source code can be found on <a href="https://github.com/fchapleau/AzureRange">GitHub</a>.
 </p>
     </div>
-    <div id="generation">
+    <form action="/Download/">
+
+        <div id="generation">
         <div id="geographyandserviceselection">
             @foreach (var geography in regions.Select(r => r.Geography).Distinct().OrderBy(g => g))
             {
@@ -41,7 +43,7 @@
                     {
                         <div class="region">
                             <label>
-                                <input type="checkbox" name="regionchk" value="@region.Id" />&nbsp;@region.Name
+                                <input type="checkbox" name="region" value="@region.Id" />&nbsp;@region.Name
                             </label>
                         </div>
                     }
@@ -53,17 +55,17 @@
                 {
                     <div class="region">
                         <label>
-                            <input type="checkbox" name="o365servicechk" value="@service.Id" />&nbsp;@service.Name
+                            <input type="checkbox" name="o365service" value="@service.Id" />&nbsp;@service.Name
                         </label>
                     </div>
                 }
             </div>
 
             <div id="special-select">
-                <button id="checkAllregion">Check All Regions</button>
-                <button id="uncheckAllregion">Uncheck All Regions</button>
-                <button id="checkAllO365">Check All O365</button>
-                <button id="uncheckAllO365">Uncheck All O365</button>
+                <button id="checkAllregion" type = "button">Check All Regions</button>
+                <button id="uncheckAllregion" type = "button">Uncheck All Regions</button>
+                <button id="checkAllO365" type = "button">Check All O365</button>
+                <button id="uncheckAllO365" type = "button">Uncheck All O365</button>
             </div>
             <div class="outputformat">
                 <div id="working-mode" class="radiobutton">
@@ -76,14 +78,15 @@
                 </div>
             </div>
             <div class="calculatebuttons">
-                <button id="downloadContentButton">Download Output</button>
-                <button id="showContentButton">Display Output</button>
-                <button id="hideContentButton" hidden>Hide Results</button>
+                <input type="submit" value="Download Output" />
+                <button id="showContentButton" type = "button">Display Output</button>
+                <button id="hideContentButton" type = "button" hidden>Hide Results</button>
             </div>
         </div>
 
         <p></p>
     </div>
+    </form>
     <div id="TextResponse" hidden>
         <p></p>
         <p id="IPRangeStats">...</p>

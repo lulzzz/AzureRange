@@ -73,13 +73,26 @@ ip access-list extended AzurePublicServicesACL
             }
         }
 
-        internal static string Generate(string[] regions, string outputformat, bool complement, out int resultCount)
+        internal static string Generate(string[] regions, string[] o365services, string outputformat, bool complement, out int resultCount)
         {
             var resultString = string.Empty;
             resultCount = 0;
 
             var webGen = new WebGenerator(CacheConnection);
-            var result = webGen.GetComplementPrefixList(regions.ToList(), complement);
+
+            var regionsAndServices = new string[(regions == null ? 0 : regions.Length) + (o365services == null ? 0 : o365services.Length)];
+
+            if (regions != null)
+                // add regions to the array
+                Array.Copy(regions, 0, regionsAndServices, 0, regions.Length);
+            if (o365services != null)
+                // Add o365 services to the array
+                Array.Copy(o365services, 0, regionsAndServices, regions == null ? 0 : regions.Length, o365services.Length);
+            
+            var result = webGen.GetPrefixList(regionsAndServices.ToList(), complement);
+
+            resultCount = result.Count();
+
             switch (outputformat)
             {
                 case "cisco-ios":

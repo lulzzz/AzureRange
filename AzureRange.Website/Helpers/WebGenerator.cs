@@ -163,7 +163,7 @@ namespace AzureRange.Website
             return o365Services;
         }
 
-        public List<IPPrefix> GetComplementPrefixList(List<string> regionsAndO365Service, bool complement)
+        public List<IPPrefix> GetPrefixList(List<string> regionsAndO365Service, bool complement)
         {
             var stopWatch = Stopwatch.StartNew();
 
