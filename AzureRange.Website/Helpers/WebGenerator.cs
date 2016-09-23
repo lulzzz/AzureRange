@@ -45,9 +45,7 @@ namespace AzureRange.Website
                 var jsonIpPrefixList = string.Empty;
                 try
                 {
-#if DEBUG
                     jsonIpPrefixList = db.StringGet("ranges");
-#endif
                 }
                 catch (TimeoutException)
                 {
@@ -76,9 +74,7 @@ namespace AzureRange.Website
                 var db = RedisCache.GetDatabase();
                 try
                 {
-#if DEBUG
                     db.StringSet("ranges", list, TimeSpan.FromHours(1));
-#endif
                 }
                 catch (TimeoutException)
                 { }
@@ -180,10 +176,8 @@ namespace AzureRange.Website
             try
             {
                 // See if results for this query were calculated before
-#if DEBUG
                 cachedResult = db.StringGet(key);
-#endif
-    }
+            }
             catch (TimeoutException){}
    
             if (!string.IsNullOrEmpty(cachedResult))
@@ -213,9 +207,7 @@ namespace AzureRange.Website
                 }
                 try
                 {
-#if DEBUG
                     db.StringSet(key, JsonConvert.SerializeObject(result), TimeSpan.FromHours(1));
-#endif
                 }
                 catch (TimeoutException) { }
             }
