@@ -11,6 +11,7 @@ function initLoad() {
     $('#non-complement-wm').trigger("click");
 }
 
+
 $(document).ready(function () {
     //To ensure parameters sent to the controler don't include %20%25
     $.ajaxSettings.traditional = true;
@@ -18,6 +19,28 @@ $(document).ready(function () {
     window.setTimeout(initLoad, 10);
     $('#complement-wm').trigger("click");
     $('#outputformat').show();
+
+    $('.tableLabel').click(function () {
+        // Toggle regions selected
+        if ($(this).attr('chked') !== "true")
+        {
+            $(this).parent().find("input[type=checkbox]").prop('checked', true);
+            $(this).attr('chked', "true");
+        }
+        else
+        {
+            $(this).parent().find("input[type=checkbox]").prop('checked', false);
+            $(this).attr('chked', "false");
+        }
+    });
+
+    // Reset parent regional click
+    $('input[name=region]').click(function () {
+        if ($(this).prop('checked') === false)
+        {
+            $(this).parent().parent().parent().children("span").attr('chked', "false");
+        }
+    });
 
     // Hide relevant menu options when complement mode selected
     $('#complement-wm').click(function () {
@@ -36,11 +59,13 @@ $(document).ready(function () {
     //Check all regions if clicked
     $('#checkAllregion').click(function () {
         $("input[name=region]").prop('checked', true);
+        $('.tableLabel').attr('chked', "true");
     });
 
     //Uncheck all regions if clicked 
     $('#uncheckAllregion').click(function () {
         $("input[name=region]").prop('checked', false);
+        $('.tableLabel').attr('chked', "false");
     });
 
     //Check all o365 services if clicked

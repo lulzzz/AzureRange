@@ -38,15 +38,17 @@
             @foreach (var geography in regions.Select(r => r.Geography).Distinct().OrderBy(g => g))
             {
                 <div class="geography">
-                    <div class="tableLabel">@geography</div>
-                    @foreach (var region in regions.Where(r => r.Geography == geography).OrderBy(r => r.Name))
-                    {
-                        <div class="region">
-                            <label>
-                                <input type="checkbox" name="region" value="@region.Id" />&nbsp;@region.Name
-                            </label>
-                        </div>
-                    }
+                    @*<div class="tableLabel"><input id="chk-@geography" type="checkbox" />&nbsp;@geography</div>*@
+                    <div><span class="tableLabel" chked="false">@geography</span>
+                        @foreach (var region in regions.Where(r => r.Geography == geography).OrderBy(r => r.Name))
+                        {
+                            <div class="region">
+                                <label>
+                                    <input type="checkbox" name="region" value="@region.Id" />&nbsp;@region.Name
+                                </label>
+                            </div>
+                        }
+                    </div>
                 </div>
             }
             <div class="o365service">

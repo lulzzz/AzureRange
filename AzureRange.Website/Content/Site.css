@@ -31,6 +31,10 @@ textarea {
     text-align:center;
 }
 
+.tableLabel:hover{
+    background-color:lightblue;
+}
+
 #geographyandserviceselection{
     border: 1px solid black;
     text-align:center;
