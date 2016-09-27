@@ -53,7 +53,6 @@ namespace AzureRange.Website
 
                 _telemetry.TrackDependency("Redis", "GetRanges", DateTime.Now, stopWatch.Elapsed, true);
 
-                //if (string.IsNullOrEmpty(jsonIpPrefixList))
                 if (!string.IsNullOrEmpty(jsonIpPrefixList))
                 {
                     return JsonConvert.DeserializeObject<List<IPPrefix>>(jsonIpPrefixList);
@@ -86,13 +85,85 @@ namespace AzureRange.Website
         }
         public List<AzureRegion> GetRegions()
         {
-            var regionList = CachedList.Select(f => f.Region).Where(f=>!string.IsNullOrWhiteSpace(f)).Distinct().OrderBy(t=>t).ToList();
-            // replace with api call to or cache list using redis http://mscloudips.azurewebsites.net/api/azureips/operation/listregions
-            var regionManager = new RegionManager();
-            var regions = regionManager.GetRegions(regionList);
-            return regions;
+            var db = RedisCache.GetDatabase();
+            var jsonRegion = string.Empty;
+            List<AzureRegion> azureRegion = new List<AzureRegion>();
+
+            try
+            {
+#if DEBUG
+                jsonRegion = db.StringGet("AzureRegions");
+#endif
+            }
+            catch (TimeoutException)
+            {
+            }
+
+            if (!string.IsNullOrEmpty(jsonRegion))
+            {
+                azureRegion = JsonConvert.DeserializeObject<List<AzureRegion>>(jsonRegion);
+            }
+            else
+            {
+                var regionList = CachedList.Select(f => f.Region).Where(f => !string.IsNullOrWhiteSpace(f)).Distinct().OrderBy(t => t).ToList();
+                var regionManager = new RegionAndO365ServiceManager();
+                azureRegion = regionManager.GetAzureRegions(regionList);
+                try
+                {
+#if DEBUG
+                    db.StringSet("AzureRegions", JsonConvert.SerializeObject(azureRegion), TimeSpan.FromHours(1));
+#endif
+                }
+                catch (TimeoutException)
+                {
+                }
+            }
+            return azureRegion;
         }
-        public List<IPPrefix> GetComplementPrefixList(List<string> regions, bool complement)
+
+        public List<O365Service> GetO365Services()
+        {
+            var db = RedisCache.GetDatabase();
+            var jsonO365Service = string.Empty;
+            List<O365Service> o365Services = new List<O365Service>();
+
+            try
+            {
+#if DEBUG
+                jsonO365Service = db.StringGet("O365Services");
+#endif
+            }
+            catch (TimeoutException)
+            {
+            }
+
+            if (!string.IsNullOrEmpty(jsonO365Service))
+            {
+                o365Services = JsonConvert.DeserializeObject<List<O365Service>>(jsonO365Service);
+            }
+            else
+            {
+
+
+                var o365serviceList = CachedList.Select(f => f.O365Service).Where(f => !string.IsNullOrWhiteSpace(f)).Distinct().OrderBy(t => t).ToList();
+                // replace with api call to or cache list using redis http://mscloudips.azurewebsites.net/api/azureips/operation/listregions
+                var o365Manager = new RegionAndO365ServiceManager();
+                o365Services = o365Manager.GetO365Services(o365serviceList);
+
+                try
+                {
+#if DEBUG
+                    db.StringSet("O365Services", JsonConvert.SerializeObject(o365Services), TimeSpan.FromHours(1));
+#endif
+                }
+                catch (TimeoutException)
+                {
+                }
+            }
+            return o365Services;
+        }
+
+        public List<IPPrefix> GetPrefixList(List<string> regionsAndO365Service, bool complement)
         {
             var stopWatch = Stopwatch.StartNew();
 
@@ -100,7 +171,7 @@ namespace AzureRange.Website
             List<IPPrefix> result = null;
             var db = RedisCache.GetDatabase();
             // Create the key for RedisCache
-            var key = string.Join("|",regions.ToArray()) + complement.ToString();
+            var key = string.Join("|",regionsAndO365Service.ToArray()) + complement.ToString();
 
             try
             {
@@ -117,7 +188,8 @@ namespace AzureRange.Website
             { 
                 var localList = (List<IPPrefix>)CachedList.Clone();
 
-                localList.RemoveAll(m => !regions.Contains(m.Region));
+                localList.RemoveAll(m => !regionsAndO365Service.Contains(m.Region) && !regionsAndO365Service.Contains(m.O365Service));
+                
                 // Return the complement of Azure Subnets
                 if (complement)
                 {

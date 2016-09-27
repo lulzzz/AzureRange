@@ -41,11 +41,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureRegion.cs" />
+    <Compile Include="O365Service.cs" />
     <Compile Include="Downloader.cs" />
     <Compile Include="Generator.cs" />
     <Compile Include="IpPrefix.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RegionManager.cs" />
+    <Compile Include="RegionAndO365ServiceManager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

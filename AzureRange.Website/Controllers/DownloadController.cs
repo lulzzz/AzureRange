@@ -12,11 +12,11 @@ namespace AzureRange.Website.Controllers
 {
     public class DownloadController : BaseController
     {
-        public ActionResult Index(string[] region, string outputformat, string command, bool complement = false)
+        public ActionResult Index(string[] region, string[] o365service, string outputformat, string command, bool complement = false)
         {
             int resultCount;
-            var resultString = GenerationHelper.Generate(region, outputformat, false, out resultCount);
-            var outputFileName = "Results-UTC-" + DateTime.UtcNow + "-" + string.Join("-", region) + ".txt";
+            var resultString = GenerationHelper.Generate(region, o365service, outputformat, false, out resultCount);
+            var outputFileName = "Results-UTC-" + DateTime.UtcNow + "-" + (region==null? "": string.Join("-", region)) + "-" + (o365service==null? "" : string.Join("-",o365service)) + ".txt";
             
             return File(Encoding.UTF8.GetBytes(resultString), "application/octet-stream", outputFileName);
         }

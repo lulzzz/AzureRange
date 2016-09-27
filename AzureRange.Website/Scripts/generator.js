@@ -1,6 +1,4 @@
-﻿
-
-var optComp1 = "<option class='complement' value='cisco-ios'>Cisco IOS/IOS XE</option>";
+﻿var optComp1 = "<option class='complement' value='cisco-ios'>Cisco IOS/IOS XE</option>";
 var optComp2 = "<option class='complement' value='cisco-asa'>Cisco ASA</option>";
 var optNComp1 = "<option class='non-complement' value='cisco-ios-route-list'>Cisco IOS/IOS XE Route List</option>";
 var optNComp2 = "<option class='non-complement' value='cisco-ios-acl-list'>Cisco IOS/IOS XE ACL List</option>";
@@ -10,8 +8,9 @@ var optBoth3 = "<option class='both' value='csv-subnet-masks'>CSV list of subnet
 var optBoth4 = "<option class='both' value='csv-cidr'>CSV list of CIDR</option>";
 
 function initLoad() {
-    $('#complement-wm').trigger("click");
+    $('#non-complement-wm').trigger("click");
 }
+
 
 $(document).ready(function () {
     //To ensure parameters sent to the controler don't include %20%25
@@ -21,28 +20,62 @@ $(document).ready(function () {
     $('#complement-wm').trigger("click");
     $('#outputformat').show();
 
+    $('.tableLabel').click(function () {
+        // Toggle regions selected
+        if ($(this).attr('chked') !== "true")
+        {
+            $(this).parent().find("input[type=checkbox]").prop('checked', true);
+            $(this).attr('chked', "true");
+        }
+        else
+        {
+            $(this).parent().find("input[type=checkbox]").prop('checked', false);
+            $(this).attr('chked', "false");
+        }
+    });
+
+    // Reset parent regional click
+    $('input[name=region]').click(function () {
+        if ($(this).prop('checked') === false)
+        {
+            $(this).parent().parent().parent().children("span").attr('chked', "false");
+        }
+    });
+
     // Hide relevant menu options when complement mode selected
     $('#complement-wm').click(function () {
         calculateComp = true;
         $('#outputformat').children().remove();
-        $('#outputformat').append(optComp1,optComp2,optBoth1,optBoth2,optBoth3,optBoth4);
-    })
+        $('#outputformat').append(optComp1, optComp2, optBoth1, optBoth2, optBoth3, optBoth4);
+    });
 
     // Hide relevant menu options when non complement mode selected
     $('#non-complement-wm').click(function () {
         calculateComp = false;
         $('#outputformat').children().remove();
         $('#outputformat').append(optNComp1, optNComp2, optBoth1, optBoth2, optBoth3, optBoth4);
-    })
+    });
 
     //Check all regions if clicked
-    $('#checkAll').click(function () {
-        $("input[type=checkbox]").prop('checked', true);
+    $('#checkAllregion').click(function () {
+        $("input[name=region]").prop('checked', true);
+        $('.tableLabel').attr('chked', "true");
     });
 
     //Uncheck all regions if clicked 
-    $('#uncheckAll').click(function () {
-        $("input[type=checkbox]").prop('checked', false);
+    $('#uncheckAllregion').click(function () {
+        $("input[name=region]").prop('checked', false);
+        $('.tableLabel').attr('chked', "false");
+    });
+
+    //Check all o365 services if clicked
+    $('#checkAllO365').click(function () {
+        $("input[name=o365service]").prop('checked', true);
+    });
+
+    //Uncheck all o365 services if clicked 
+    $('#uncheckAllO365').click(function () {
+        $("input[name=o365service]").prop('checked', false);
     });
 
     //Hide the box if button is clicked
@@ -55,12 +88,14 @@ $(document).ready(function () {
     //Show content if button is clicked.
     $('#showContentButton').click(function () {
         var Controller = 'api/Generate';
+        var Command = 'show';
         var Outputformat = $('#outputformat').find('option:selected').val();
-        var Region = $('input[type=checkbox]:checked').map(function () { return this.value }).get();
+        var Region = $('input[name=region]:checked').map(function () { return this.value; }).get();
+        var O365svc = $('input[name=o365service]:checked').map(function () { return this.value; }).get();
         // if at least 1 region is selected
-        if (Region.length > 0) {
+        if (Region.length > 0 || O365svc.length > 0) {
             $('#tbox').html("Loading...");
-            switch (calculateComp){
+            switch (calculateComp) {
                 case true:
                     $('#IPRangeStats').text("Number of complement prefixes found ... : ");
                     break;
@@ -71,20 +106,45 @@ $(document).ready(function () {
             $('#TextResponse').show(500);
             // show button to hide content
             $('#hideContentButton').show();
-            $.get(Controller, { outputformat: Outputformat, regions: Region, complement: calculateComp }, function (responseTxt, statusTxt, xhr) {
-                if (statusTxt == "success")
-                {
+            $.get(Controller, { command: Command, outputformat: Outputformat, region: Region, o365service: O365svc, complement: calculateComp }, function (responseTxt, statusTxt, xhr) {
+                if (statusTxt === "success") {
                     $('#IPRangeStats').append(xhr.responseJSON["count"]);
                     $("#tbox").html(xhr.responseJSON["encodedResultString"]);
                 }
-                if (statusTxt == "Error")
+                if (statusTxt === "Error")
                     $("#tbox").html("Error fetching the data!" + xhr.statusTxt);
             });
         }
         else
-            alert("No Region Selected.");
-
-        return false;
+            alert("No Region or Office 365 Service Selected.");
     });
 
+    //DownloadButton - code to be removed
+    //$('#downloadContentButton').click(function () {
+    //    var Controller = 'download';
+    //    var Command = 'download';
+    //    var Outputformat = $('#outputformat').find('option:selected').val();
+    //    var Region = $('input[name=regionchk]:checked').map(function () { return this.value }).get();
+    //    var O365svc = $('input[name=o365servicechk]:checked').map(function () { return this.value }).get();
+    //    // Launch controller for download (command)
+    //    if (Region.length > 0 || O365svc.length > 0) {
+    //        $.get(Controller, { command: Command, outputformat: Outputformat, regions: Region, o365services: O365svc, complement: calculateComp }, function (responseTxt, statusTxt, xhr) {
+    //            if (statusTxt === "success") {
+    //                // Prepare file for download
+    //                var filedata = [];
+    //                filedata.push(xhr.responseJSON["encodedResultString"]);
+    //                var properties = { type: 'plain/text' };
+    //                blobfile = new Blob(filedata, properties);
+    //                url = URL.createObjectURL(blobfile);
+    //                // Offer the option to open or save file
+    //                window.navigator.msSaveOrOpenBlob(blobfile, xhr.responseJSON["fileName"]);
+    //            }
+    //            if (statusTxt === "Error")
+    //                Alert("Error fetching the data!" + xhr.statusTxt);
+    //        });
+    //    }
+    //    else {
+    //        alert("No Region or Office 365 Service Selected.");
+    //    }
+    //});
 });

@@ -2,10 +2,9 @@
 
 @{ 
     ViewBag.Title = "Azure Range - BETA";
-    var regions = (List<AzureRegion>)ViewData["Regions"];
+    var regions         = (List<AzureRegion>)ViewData["Regions"];
+    var o365services    = (List<O365Service>)ViewData["O365services"];
 }
-
-
 
 <div>
     <div id="headerAndLogo">
@@ -33,12 +32,14 @@
 </p>
     </div>
     <form action="/Download/">
+
         <div id="generation">
-            <div id="geographyselection">
-                @foreach (var geography in regions.Select(r => r.Geography).Distinct().OrderBy(g => g))
+        <div id="geographyandserviceselection">
+            @foreach (var geography in regions.Select(r => r.Geography).Distinct().OrderBy(g => g))
             {
-                    <div class="geography">
-                        <div class="geographyLabel">@geography</div>
+                <div class="geography">
+                    @*<div class="tableLabel"><input id="chk-@geography" type="checkbox" />&nbsp;@geography</div>*@
+                    <div><span class="tableLabel" chked="false">@geography</span>
                         @foreach (var region in regions.Where(r => r.Geography == geography).OrderBy(r => r.Name))
                         {
                             <div class="region">
@@ -48,30 +49,45 @@
                             </div>
                         }
                     </div>
+                </div>
+            }
+            <div class="o365service">
+                <div class="tableLabel">Office 365 Services</div>
+                @foreach (var service in o365services.OrderBy(svc => svc.Name)) 
+                {
+                    <div class="region">
+                        <label>
+                            <input type="checkbox" name="o365service" value="@service.Id" />&nbsp;@service.Name
+                        </label>
+                    </div>
                 }
-                <div id="special-select">
-                    <button id="checkAll">Check All</button>
-                    <button id="uncheckAll">Uncheck All</button>
-                </div>
-                <div class="outputformat">
-                    <div id="working-mode" class="radiobutton">
-                        <input type="radio" id="complement-wm" name="working-mode" checked />Generate Complement Prefix List<br />
-                        <input type="radio" id="non-complement-wm" name="working-mode" />Generate Prefix List<br />
-                    </div>
-                    <div class="outputformatlist">
-                        Output format:
-                        <select id="outputformat" name="outputformat" style="width:220px" hidden></select>
-                    </div>
-                </div>
-                <div class="calculatebuttons">
-                    <input type="submit" value="Download Output" />
-                    <button id="showContentButton">Display Output</button>
-                    <button id="hideContentButton" hidden>Hide Results</button>
-                </div>
             </div>
 
-            <p></p>
+            <div id="special-select">
+                <button id="checkAllregion" type = "button">Check All Regions</button>
+                <button id="uncheckAllregion" type = "button">Uncheck All Regions</button>
+                <button id="checkAllO365" type = "button">Check All O365</button>
+                <button id="uncheckAllO365" type = "button">Uncheck All O365</button>
+            </div>
+            <div class="outputformat">
+                <div id="working-mode" class="radiobutton">
+                    <input type="radio" id="non-complement-wm" name="working-mode" checked/>Generate Prefix List<br />
+                    <input type="radio" id="complement-wm" name="working-mode" />Generate Complement Prefix List<br />
+                </div>
+                <div class="outputformatlist">
+                    Output format:
+                    <select id="outputformat" name="outputformat" style="width:220px" hidden></select>
+                </div>
+            </div>
+            <div class="calculatebuttons">
+                <input type="submit" value="Download Output" />
+                <button id="showContentButton" type = "button">Display Output</button>
+                <button id="hideContentButton" type = "button" hidden>Hide Results</button>
+            </div>
         </div>
+
+        <p></p>
+    </div>
     </form>
     <div id="TextResponse" hidden>
         <p></p>

@@ -11,10 +11,10 @@ namespace AzureRange.Website.Controllers
     public class GenerateController : ApiController
     {
         // GET api/<controller>
-        public IHttpActionResult Get([FromUri] string[] regions, string outputformat, bool complement = false)
+        public IHttpActionResult Get([FromUri] string[] region, [FromUri] string[] o365service, string outputformat, bool complement = false)
         {
             int resultCount;
-            var resultString = GenerationHelper.Generate(regions, outputformat, complement, out resultCount);
+            var resultString = GenerationHelper.Generate(region, o365service, outputformat, complement, out resultCount);
             return Json(new { count = resultCount, encodedResultString = WebUtility.HtmlEncode(resultString) });
         }
     }
