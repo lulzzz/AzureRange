@@ -111,7 +111,7 @@ namespace AzureRange.Website
                 try
                 {
 #if DEBUG
-                    db.StringSet("AzureRegions", JsonConvert.SerializeObject(azureRegion), TimeSpan.FromHours(1));
+                    db.StringSet("AzureRegions", JsonConvert.SerializeObject(azureRegion), TimeSpan.FromHours(24));
 #endif
                 }
                 catch (TimeoutException)
@@ -153,7 +153,7 @@ namespace AzureRange.Website
                 try
                 {
 #if DEBUG
-                    db.StringSet("O365Services", JsonConvert.SerializeObject(o365Services), TimeSpan.FromHours(1));
+                    db.StringSet("O365Services", JsonConvert.SerializeObject(o365Services), TimeSpan.FromHours(24));
 #endif
                 }
                 catch (TimeoutException)
