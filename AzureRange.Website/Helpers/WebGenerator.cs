@@ -99,7 +99,7 @@ namespace AzureRange.Website
             {
             }
 
-            if (!string.IsNullOrEmpty(jsonRegion))
+            if (jsonRegion != null)
             {
                 azureRegion = JsonConvert.DeserializeObject<List<AzureRegion>>(jsonRegion);
             }
@@ -137,7 +137,7 @@ namespace AzureRange.Website
             {
             }
 
-            if (!string.IsNullOrEmpty(jsonO365Service))
+            if (jsonO365Service != null)
             {
                 o365Services = JsonConvert.DeserializeObject<List<O365Service>>(jsonO365Service);
             }
