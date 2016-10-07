@@ -85,82 +85,11 @@ namespace AzureRange.Website
         }
         public List<AzureRegion> GetRegions()
         {
-            var db = RedisCache.GetDatabase();
-            var jsonRegion = string.Empty;
-            List<AzureRegion> azureRegion = new List<AzureRegion>();
-
-            try
-            {
-#if DEBUG
-                jsonRegion = db.StringGet("AzureRegions");
-#endif
-            }
-            catch (TimeoutException)
-            {
-            }
-
-            if (!string.IsNullOrEmpty(jsonRegion))
-            {
-                azureRegion = JsonConvert.DeserializeObject<List<AzureRegion>>(jsonRegion);
-            }
-            else
-            {
-                var regionList = CachedList.Select(f => f.Region).Where(f => !string.IsNullOrWhiteSpace(f)).Distinct().OrderBy(t => t).ToList();
-                var regionManager = new RegionAndO365ServiceManager();
-                azureRegion = regionManager.GetAzureRegions(regionList);
-                try
-                {
-#if DEBUG
-                    db.StringSet("AzureRegions", JsonConvert.SerializeObject(azureRegion), TimeSpan.FromHours(1));
-#endif
-                }
-                catch (TimeoutException)
-                {
-                }
-            }
-            return azureRegion;
-        }
-
-        public List<O365Service> GetO365Services()
-        {
-            var db = RedisCache.GetDatabase();
-            var jsonO365Service = string.Empty;
-            List<O365Service> o365Services = new List<O365Service>();
-
-            try
-            {
-#if DEBUG
-                jsonO365Service = db.StringGet("O365Services");
-#endif
-            }
-            catch (TimeoutException)
-            {
-            }
-
-            if (!string.IsNullOrEmpty(jsonO365Service))
-            {
-                o365Services = JsonConvert.DeserializeObject<List<O365Service>>(jsonO365Service);
-            }
-            else
-            {
-
-
-                var o365serviceList = CachedList.Select(f => f.O365Service).Where(f => !string.IsNullOrWhiteSpace(f)).Distinct().OrderBy(t => t).ToList();
-                // replace with api call to or cache list using redis http://mscloudips.azurewebsites.net/api/azureips/operation/listregions
-                var o365Manager = new RegionAndO365ServiceManager();
-                o365Services = o365Manager.GetO365Services(o365serviceList);
-
-                try
-                {
-#if DEBUG
-                    db.StringSet("O365Services", JsonConvert.SerializeObject(o365Services), TimeSpan.FromHours(1));
-#endif
-                }
-                catch (TimeoutException)
-                {
-                }
-            }
-            return o365Services;
+            var regionList = CachedList.Select(f => f.Region).Where(f=>!string.IsNullOrWhiteSpace(f)).Distinct().OrderBy(t=>t).ToList();
+            // replace with api call to or cache list using redis http://mscloudips.azurewebsites.net/api/azureips/operation/listregions
+            var regionManager = new RegionManager();
+            var regions = regionManager.GetRegions(regionList);
+            return regions;
         }
 
         public List<IPPrefix> GetPrefixList(List<string> regionsAndO365Service, bool complement)
