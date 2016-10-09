@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AzureRange
 {
-    public class IPPrefix: IEquatable<IPPrefix>, ICloneable
+    public class IPPrefix : IEquatable<IPPrefix>, ICloneable
     {
         public IPPrefix()
         {
@@ -17,7 +17,7 @@ namespace AzureRange
             FirstIP = pUInt32_Network;
             Mask = pInt_Mask;
         }
-        public IPPrefix (string RawPrefix)
+        public IPPrefix(string RawPrefix)
         {
             this.RawPrefix = RawPrefix;
             RawPrefixSubnet = this.RawPrefix.Substring(0, this.RawPrefix.IndexOf("/"));
@@ -35,7 +35,7 @@ namespace AzureRange
 
             #endregion
         }
-        public IPPrefix (string RegionOrO365Service, string pStrRawPrefix, bool isAzure)
+        public IPPrefix(string RegionOrO365Service, string pStrRawPrefix, bool isAzure)
         {
             if (isAzure)
             {
@@ -54,7 +54,7 @@ namespace AzureRange
                 RawPrefix = RawPrefix + "/32";
 
             RawPrefixSubnet = RawPrefix.Substring(0, RawPrefix.IndexOf("/"));
-            Mask = Convert.ToInt32(RawPrefix.Substring(RawPrefix.IndexOf("/")+1));
+            Mask = Convert.ToInt32(RawPrefix.Substring(RawPrefix.IndexOf("/") + 1));
 
             var subnetParts = RawPrefixSubnet.Split('.');
             UInt32 subnetDecimal = (UInt32)Convert.ToInt32(subnetParts[0]) * 256 * 256 * 256;

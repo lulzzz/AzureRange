@@ -19,7 +19,7 @@ namespace AzureRange.Common.Test
         [TestMethod]
         public void IPPrefixTest()
         {
-            var testIPPrefix = new IPPrefix("NA", "192.168.0.1/24");
+            var testIPPrefix = new IPPrefix("NA", "192.168.0.1/24", true);
             Assert.AreEqual(testIPPrefix.ReadableIP, "192.168.0.1");
             Assert.AreEqual(testIPPrefix.Mask, 24);
         }
@@ -27,8 +27,8 @@ namespace AzureRange.Common.Test
         [TestMethod]
         public void BetweenSimpleTest()
         {
-            var lowerBound = new IPPrefix("na", "192.168.0.0/24");
-            var upperBound = new IPPrefix("na", "192.168.2.0/24");
+            var lowerBound = new IPPrefix("na", "192.168.0.0/24", true);
+            var upperBound = new IPPrefix("na", "192.168.2.0/24", true);
 
             var result = Generator.GetPrefixesBetween(lowerBound, upperBound);
             Assert.AreEqual(result.ReadableIP, "192.168.1.0");
@@ -38,8 +38,8 @@ namespace AzureRange.Common.Test
         [TestMethod]
         public void BetweenTwoSubnetTest()
         {
-            var lowerBound = new IPPrefix("na", "192.168.0.0/24");
-            var upperBound = new IPPrefix("na", "192.168.3.0/24");
+            var lowerBound = new IPPrefix("na", "192.168.0.0/24", true);
+            var upperBound = new IPPrefix("na", "192.168.3.0/24", true);
 
             var result = Generator.GetPrefixesBetween(lowerBound, upperBound);
             Assert.AreEqual(result.ReadableIP, "192.168.2.0");
