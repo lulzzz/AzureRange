@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/9y5ip9k042g3ce5a/branch/master?svg=true)](https://ci.appveyor.com/project/fchapleau/azurerange/branch/master)
+
 # AzureRange
 Generates Complementary Subnets of Azure Datacenter IP Ranges. Live site is at http://azurerange.azurewebsites.net
 
@@ -16,4 +18,6 @@ Generates Complementary Subnets of Azure Datacenter IP Ranges. Live site is at h
 =======
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
+
 
