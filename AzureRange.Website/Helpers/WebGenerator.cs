@@ -1,10 +1,10 @@
 ﻿using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Newtonsoft.Json;
-using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Web;
 
@@ -22,16 +22,12 @@ namespace AzureRange.Website
             return ipPPrefixesInput;
         }
 
-        public WebGenerator(IConnectionMultiplexer connection)
+        public WebGenerator()
         {
-            RedisCache = connection;
             _telemetry = new Microsoft.ApplicationInsights.TelemetryClient();
         }
-        public IConnectionMultiplexer RedisCache
-        {
-            get;
-            private set;
-        }
+        
+
         public List<IPPrefix> CachedList
         {
             get
@@ -39,19 +35,11 @@ namespace AzureRange.Website
                 if (_localList != null)
                     return _localList;
 
-                var stopWatch = Stopwatch.StartNew();
-
-                var db = RedisCache.GetDatabase();
                 var jsonIpPrefixList = string.Empty;
-                try
-                {
-                    jsonIpPrefixList = db.StringGet("ranges");
-                }
-                catch (TimeoutException)
-                {
-                }
 
-                _telemetry.TrackDependency("Redis", "GetRanges", DateTime.Now, stopWatch.Elapsed, true);
+                var filepath = Path.GetTempPath() + "\\ranges.txt";
+                if (File.Exists(filepath) && (DateTime.Now - File.GetCreationTime(filepath)).TotalHours < 8)
+                    jsonIpPrefixList = File.ReadAllText(filepath);
 
                 if (!string.IsNullOrEmpty(jsonIpPrefixList))
                 {
@@ -69,37 +57,23 @@ namespace AzureRange.Website
             private set
             {
                 var list = JsonConvert.SerializeObject(value);
+                var filepath = Path.GetTempPath() + "\\ranges.txt";
+                File.WriteAllText(filepath, JsonConvert.SerializeObject(value));
 
-                var stopWatch = Stopwatch.StartNew();
-                var db = RedisCache.GetDatabase();
-                try
-                {
-                    db.StringSet("ranges", list, TimeSpan.FromHours(1));
-                }
-                catch (TimeoutException)
-                { }
-
-                _telemetry.TrackDependency("Redis", "PutRanges", DateTime.Now, stopWatch.Elapsed, true);
                 _localList = value;
             }
         }
         public List<AzureRegion> GetRegions()
         {
-            var db = RedisCache.GetDatabase();
             var jsonRegion = string.Empty;
             List<AzureRegion> azureRegion = new List<AzureRegion>();
+            
+            var filepath = Path.GetTempPath() + "\\AzureRegions.txt";
 
-            try
-            {
-#if DEBUG
-                jsonRegion = db.StringGet("AzureRegions");
-#endif
-            }
-            catch (TimeoutException)
-            {
-            }
+            if (File.Exists(filepath) && (DateTime.Now - File.GetCreationTime(filepath)).TotalHours < 8)
+                jsonRegion = File.ReadAllText(filepath);
 
-            if (jsonRegion != null)
+            if (!string.IsNullOrEmpty(jsonRegion))
             {
                 azureRegion = JsonConvert.DeserializeObject<List<AzureRegion>>(jsonRegion);
             }
@@ -108,15 +82,9 @@ namespace AzureRange.Website
                 var regionList = CachedList.Select(f => f.Region).Where(f => !string.IsNullOrWhiteSpace(f)).Distinct().OrderBy(t => t).ToList();
                 var regionManager = new RegionAndO365ServiceManager();
                 azureRegion = regionManager.GetAzureRegions(regionList);
-                try
-                {
-#if DEBUG
-                    db.StringSet("AzureRegions", JsonConvert.SerializeObject(azureRegion), TimeSpan.FromHours(24));
-#endif
-                }
-                catch (TimeoutException)
-                {
-                }
+                
+                File.WriteAllText(filepath, JsonConvert.SerializeObject(azureRegion));
+
             }
             return azureRegion;
         }
@@ -127,17 +95,12 @@ namespace AzureRange.Website
 
             var cachedResult = string.Empty;
             List<IPPrefix> result = null;
-            var db = RedisCache.GetDatabase();
-            // Create the key for RedisCache
-            var key = string.Join("|",regionsAndO365Service.ToArray()) + complement.ToString();
 
-            try
-            {
-                // See if results for this query were calculated before
-                cachedResult = db.StringGet(key);
-            }
-            catch (TimeoutException){}
-   
+            var filepath = Path.GetTempPath() + string.Join(".",regionsAndO365Service.ToArray()) + complement.ToString() + ".txt";
+
+            if (File.Exists(filepath) && (DateTime.Now - File.GetCreationTime(filepath)).TotalHours < 8)
+                cachedResult = File.ReadAllText(filepath);
+
             if (!string.IsNullOrEmpty(cachedResult))
             {
                 result = JsonConvert.DeserializeObject<List<IPPrefix>>(cachedResult);
@@ -166,53 +129,34 @@ namespace AzureRange.Website
                     result = localList.OrderBy(r => r.FirstIP).ToList();
                     _telemetry.TrackMetric("GenerateNoComplement", stopWatch.Elapsed.TotalMilliseconds);
                 }
-                try
-                {
-                    db.StringSet(key, JsonConvert.SerializeObject(result), TimeSpan.FromHours(1));
-                }
-                catch (TimeoutException) { }
+
+                File.WriteAllText(filepath, JsonConvert.SerializeObject(result));
             }
             return result;
         }
 
         public List<O365Service> GetO365Services()
         {
-            var db = RedisCache.GetDatabase();
+            var filepath = Path.GetTempPath() + "\\O365Services.txt";
             var jsonO365Service = string.Empty;
             List<O365Service> o365Services = new List<O365Service>();
 
-            try
+            if (File.Exists(filepath) && (DateTime.Now - File.GetCreationTime(filepath)).TotalHours < 8)
             {
-#if DEBUG
-                jsonO365Service = db.StringGet("O365Services");
-#endif
-            }
-            catch (TimeoutException)
-            {
+                jsonO365Service = File.ReadAllText(filepath);
             }
 
-            if (jsonO365Service != null)
+            if (!string.IsNullOrEmpty(jsonO365Service))
             {
                 o365Services = JsonConvert.DeserializeObject<List<O365Service>>(jsonO365Service);
             }
             else
             {
-
-
                 var o365serviceList = CachedList.Select(f => f.O365Service).Where(f => !string.IsNullOrWhiteSpace(f)).Distinct().OrderBy(t => t).ToList();
-                // replace with api call to or cache list using redis http://mscloudips.azurewebsites.net/api/azureips/operation/listregions
                 var o365Manager = new RegionAndO365ServiceManager();
                 o365Services = o365Manager.GetO365Services(o365serviceList);
 
-                try
-                {
-#if DEBUG
-                    db.StringSet("O365Services", JsonConvert.SerializeObject(o365Services), TimeSpan.FromHours(24));
-#endif
-                }
-                catch (TimeoutException)
-                {
-                }
+                File.WriteAllText(filepath, JsonConvert.SerializeObject(o365Services));
             }
             return o365Services;
         }

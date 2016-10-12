@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -14,7 +13,7 @@ namespace AzureRange.Website.Controllers
     {
         public ActionResult Index()
         {
-            var webGen = new WebGenerator(CacheConnection);
+            var webGen = new WebGenerator();
             var azureRegion = webGen.GetRegions();
             var o365Service = webGen.GetO365Services();
 

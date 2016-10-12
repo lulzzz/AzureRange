@@ -1,5 +1,4 @@
-﻿using StackExchange.Redis;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -60,25 +59,12 @@ ip access-list extended AzurePublicServicesACL
 ";
         #endregion
 
-        private static Lazy<ConnectionMultiplexer> lazyConnection = new Lazy<ConnectionMultiplexer>(() =>
-        {
-            string cacheConnection = ConfigurationManager.AppSettings["CacheConnection"].ToString();
-            return ConnectionMultiplexer.Connect(cacheConnection);
-        });
-        protected static IConnectionMultiplexer CacheConnection
-        {
-            get
-            {
-                return lazyConnection.Value;
-            }
-        }
-
         internal static string Generate(string[] regions, string[] o365services, string outputformat, bool complement, out int resultCount)
         {
             var resultString = string.Empty;
             resultCount = 0;
 
-            var webGen = new WebGenerator(CacheConnection);
+            var webGen = new WebGenerator();
 
             var regionsAndServices = new string[(regions == null ? 0 : regions.Length) + (o365services == null ? 0 : o365services.Length)];
 
