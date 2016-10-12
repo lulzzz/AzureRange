@@ -35,9 +35,10 @@ namespace AzureRange
 
             #endregion
         }
-        public IPPrefix(string RegionOrO365Service, string pStrRawPrefix, bool isAzure)
+        public IPPrefix(IpPrefixType type, string RegionOrO365Service, string pStrRawPrefix)
         {
-            if (isAzure)
+            Type = type;
+            if (type == IpPrefixType.Azure || type == IpPrefixType.AzureChina)
             {
                 Region = RegionOrO365Service;
                 O365Service = null;
@@ -63,6 +64,8 @@ namespace AzureRange
             subnetDecimal += (UInt32)Convert.ToInt32(subnetParts[3]);
             FirstIP = subnetDecimal;
         }
+
+        public IpPrefixType Type { get; set; }
 
         public string O365Service { get; set; }
         public string Region { get; set; }

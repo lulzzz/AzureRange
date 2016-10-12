@@ -28,15 +28,16 @@ namespace AzureRange.ConsoleApp
             ipPrefixesInput.Add(new IPPrefix("169.254.0.0/16"));
             ipPrefixesInput.Add(new IPPrefix("192.168.0.0/16"));
             ipPrefixesInput.Add(new IPPrefix("224.0.0.0/3"));
-    
+
+            Generator.Dedupe(ipPrefixesInput);
+
             // Order the ranges by increasing network ID
             ipPrefixesOutput = Generator.Not(ipPrefixesInput);
             foreach (IPPrefix l_currentPrefix in ipPrefixesOutput)
             {
                 Console.Write(String.Concat(l_currentPrefix.ReadableIP,"/",l_currentPrefix.Mask,"\n"));
-                //Console.WriteLine;
             }
-            Console.Write("Termine!\n");
+            Console.Write("Done!\n");
             Debugger.Break();
         }
     }

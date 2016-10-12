@@ -147,7 +147,10 @@ namespace AzureRange.Website
                 var localList = (List<IPPrefix>)CachedList.Clone();
 
                 localList.RemoveAll(m => !regionsAndO365Service.Contains(m.Region) && !regionsAndO365Service.Contains(m.O365Service));
-                
+
+                // Remove duplicates between Azure and Office 365 regions
+                Generator.Dedupe(localList);
+
                 // Return the complement of Azure Subnets
                 if (complement)
                 {

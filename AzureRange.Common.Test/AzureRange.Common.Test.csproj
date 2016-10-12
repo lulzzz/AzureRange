@@ -58,6 +58,10 @@
       <Project>{cf4f503c-5e28-4b21-adf7-6d8281c8bd68}</Project>
       <Name>AzureRange.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AzureRange.Website\AzureRange.Website.csproj">
+      <Project>{D6D54DDF-12FD-4654-B42C-4BD4DD74CCAD}</Project>
+      <Name>AzureRange.Website</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

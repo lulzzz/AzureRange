@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using AzureRange.Website;
 
 namespace AzureRange.Common.Test
 {
@@ -19,7 +20,7 @@ namespace AzureRange.Common.Test
         [TestMethod]
         public void IPPrefixTest()
         {
-            var testIPPrefix = new IPPrefix("NA", "192.168.0.1/24", true);
+            var testIPPrefix = new IPPrefix(IpPrefixType.Azure, "NA", "192.168.0.1/24");
             Assert.AreEqual(testIPPrefix.ReadableIP, "192.168.0.1");
             Assert.AreEqual(testIPPrefix.Mask, 24);
         }
@@ -27,8 +28,8 @@ namespace AzureRange.Common.Test
         [TestMethod]
         public void BetweenSimpleTest()
         {
-            var lowerBound = new IPPrefix("na", "192.168.0.0/24", true);
-            var upperBound = new IPPrefix("na", "192.168.2.0/24", true);
+            var lowerBound = new IPPrefix(IpPrefixType.Azure, "na", "192.168.0.0/24");
+            var upperBound = new IPPrefix(IpPrefixType.Azure, "na", "192.168.2.0/24");
 
             var result = Generator.GetPrefixesBetween(lowerBound, upperBound);
             Assert.AreEqual(result.ReadableIP, "192.168.1.0");
@@ -38,8 +39,8 @@ namespace AzureRange.Common.Test
         [TestMethod]
         public void BetweenTwoSubnetTest()
         {
-            var lowerBound = new IPPrefix("na", "192.168.0.0/24", true);
-            var upperBound = new IPPrefix("na", "192.168.3.0/24", true);
+            var lowerBound = new IPPrefix(IpPrefixType.Azure, "na", "192.168.0.0/24");
+            var upperBound = new IPPrefix(IpPrefixType.Azure, "na", "192.168.3.0/24");
 
             var result = Generator.GetPrefixesBetween(lowerBound, upperBound);
             Assert.AreEqual(result.ReadableIP, "192.168.2.0");
@@ -77,10 +78,31 @@ namespace AzureRange.Common.Test
         }
 
         [TestMethod]
+        public void ValidateNoOverlap()
+        {
+            var copy = _downloadedContent.Select(item => (IPPrefix)item.Clone()).ToList();
+
+            Generator.Dedupe(copy);
+
+            IPPrefix previousRange = null;
+            foreach (var range in copy.OrderBy(t => t.FirstIP))
+            {
+                if (previousRange != null)
+                {
+                    Assert.IsTrue(previousRange.LastIP < range.FirstIP, range.O365Service + ": " + previousRange.LastIP + " > " + range.FirstIP);
+                }
+                previousRange = range;
+            }
+        }
+
+        [TestMethod]
         public void ValidateNoGapsTest()
         {
-            var results = Generator.Not(_downloadedContent);
-            results.AddRange(_downloadedContent);
+            var copy = _downloadedContent.Select(item => (IPPrefix)item.Clone()).ToList();
+            Generator.Dedupe(copy);
+
+            var results = Generator.Not(copy);
+            results.AddRange(copy);
 
             IPPrefix previousRange = null;
             foreach(var range in results.OrderBy(t => t.FirstIP))

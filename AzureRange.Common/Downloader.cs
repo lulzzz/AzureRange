@@ -18,16 +18,41 @@ namespace AzureRange
             string downloadPageAzureChinaCloud = "https://www.microsoft.com/en-ca/download/confirmation.aspx?id=42064";
             string downloadPageO365Cloud = "http://go.microsoft.com/fwlink/?LinkId=533185";
 
-            List<IPPrefix> IPPrefixes = new List<IPPrefix>();
+            List<IPPrefix> ipPrefixes = new List<IPPrefix>();
 
-            IPPrefixes.AddRange(AddXMLMSInputFileAzure(downloadPageAzureCloud));
-            IPPrefixes.AddRange(AddXMLMSInputFileAzure(downloadPageAzureChinaCloud));
-            IPPrefixes.AddRange(AddXMLMSInputFileO365(downloadPageO365Cloud));
+            ipPrefixes.AddRange(AddXMLMSInputFileAzure(downloadPageAzureCloud, IpPrefixType.Azure));
+            ipPrefixes.AddRange(AddXMLMSInputFileAzure(downloadPageAzureChinaCloud, IpPrefixType.AzureChina));
+            ipPrefixes.AddRange(AddXMLMSInputFileO365(downloadPageO365Cloud));
+            
 
-            return IPPrefixes;
+            return ipPrefixes;
         }
+        
+        //public static void Merge(List<IPPrefix> ipPrefixes)
+        //{
+        //    var duplicates = new List<IPPrefix>();
+        //    IPPrefix previousRange = null;
+        //    foreach (var range in ipPrefixes.OrderBy(t => t.FirstIP))
+        //    {
+        //        if (previousRange != null)
+        //        {
+        //            if (range.FirstIP >= previousRange.FirstIP
+        //                &&
+        //                range.LastIP > previousRange.LastIP)
+        //            {
+        //                previousRange.LastIP = range.LastIP;
+        //                duplicates.Add(range);
+        //            }
+        //        }
+        //        previousRange = range;
+        //    }
 
-        private static List<IPPrefix> AddXMLMSInputFileAzure(string downloadURL)
+        //    duplicates.ForEach(ipToRemove => ipPrefixes.Remove(ipToRemove));
+        //}
+
+        
+
+        private static List<IPPrefix> AddXMLMSInputFileAzure(string downloadURL, IpPrefixType type)
         {
             string dlUrl = string.Empty;
             string dlContent = string.Empty;
@@ -55,8 +80,9 @@ namespace AzureRange
                 foreach (var xIPPrefix in xRegion.Elements())
                 {
                     var prefix = new IPPrefix(
+                        type,
                         xRegion.Attributes("Name").First().Value,
-                        xIPPrefix.Attributes("Subnet").First().Value,true
+                        xIPPrefix.Attributes("Subnet").First().Value
                     );
                     IPPrefixes.Add(prefix);
                 }
@@ -86,7 +112,7 @@ namespace AzureRange
                         foreach (var xIPPrefix in xAddressType.Elements())
                         {
                             var prefix = 
-                                new IPPrefix(xO365ProductName.FirstAttribute.Value,xIPPrefix.Value, false);
+                                new IPPrefix(IpPrefixType.Office365, xO365ProductName.FirstAttribute.Value,xIPPrefix.Value);
                             IPPrefixes.Add(prefix);
                         }
                     }

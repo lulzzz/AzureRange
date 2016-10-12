@@ -11,20 +11,17 @@ namespace AzureRange
         public static List<IPPrefix> Not(List<IPPrefix> PrefixList)
         {
             List<IPPrefix> complementPrefixList = new List<IPPrefix>();
-            IPPrefix previousPrefix;
             
             // Order the prefix list in numeric order
-            previousPrefix = PrefixList.OrderBy(r => r.FirstIP).First();
+            IPPrefix previousPrefix = PrefixList.OrderBy(r => r.FirstIP).First();
             
             // For each prefix, find the gap... 
             foreach (IPPrefix currentPrefix in PrefixList.OrderBy(r => r.FirstIP))
             {
-                if (previousPrefix != null)
-                {
-                    var l_complementPrefix = ProcessGap(previousPrefix, currentPrefix);
-                    if (l_complementPrefix != null)
-                        complementPrefixList.AddRange(l_complementPrefix);
-                }
+                var l_complementPrefix = ProcessGap(previousPrefix, currentPrefix);
+                if (l_complementPrefix != null)
+                    complementPrefixList.AddRange(l_complementPrefix);
+
                 previousPrefix = currentPrefix;
             }
             return complementPrefixList.OrderBy(r => r.FirstIP).ToList();
@@ -78,6 +75,39 @@ namespace AzureRange
             }
 
             return null;
+        }
+
+        public static void Dedupe(List<IPPrefix> ipPrefixes)
+        {
+            var duplicates = new List<IPPrefix>();
+            IPPrefix previousRange = null;
+            foreach (var range in ipPrefixes.OrderBy(t => t.FirstIP))
+            {
+                bool isDup = false;
+                if (previousRange != null)
+                {
+                    if (range.FirstIP >= previousRange.FirstIP
+                        &&
+                        range.LastIP <= previousRange.LastIP)
+                    {
+                        isDup = true;
+                    }
+
+                    if (range.FirstIP == previousRange.FirstIP
+                        &&
+                        range.LastIP > previousRange.LastIP)
+                    {
+                        duplicates.Add(previousRange);
+                    }
+                }
+
+                if (isDup)
+                    duplicates.Add(range);
+                else
+                    previousRange = range;
+            }
+
+            duplicates.ForEach(ipToRemove => ipPrefixes.Remove(ipToRemove));
         }
     }
 }

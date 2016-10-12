@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureRegion.cs" />
+    <Compile Include="IpPrefixType.cs" />
     <Compile Include="O365Service.cs" />
     <Compile Include="Downloader.cs" />
     <Compile Include="Generator.cs" />
