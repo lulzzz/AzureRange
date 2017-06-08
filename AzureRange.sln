@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureRange.Console", "AzureRange.Console\AzureRange.Console.csproj", "{A2537B09-A1E4-45CA-A11F-8DD9A08DBB8B}"
 EndProject
@@ -15,6 +15,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		AzureRange.Common\IpPrefix.cs = AzureRange.Common\IpPrefix.cs
 		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureRange.WebJob", "AzureRange.WebJob\AzureRange.WebJob.csproj", "{009698BE-D8B4-4E27-8FD9-F0B449BBAEBB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CF4F503C-5E28-4B21-ADF7-6D8281C8BD68} = {CF4F503C-5E28-4B21-ADF7-6D8281C8BD68}
 	EndProjectSection
 EndProject
 Global
@@ -40,6 +45,10 @@ Global
 		{D6D54DDF-12FD-4654-B42C-4BD4DD74CCAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6D54DDF-12FD-4654-B42C-4BD4DD74CCAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6D54DDF-12FD-4654-B42C-4BD4DD74CCAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{009698BE-D8B4-4E27-8FD9-F0B449BBAEBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{009698BE-D8B4-4E27-8FD9-F0B449BBAEBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{009698BE-D8B4-4E27-8FD9-F0B449BBAEBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{009698BE-D8B4-4E27-8FD9-F0B449BBAEBB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

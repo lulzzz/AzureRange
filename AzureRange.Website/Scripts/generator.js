@@ -13,12 +13,43 @@ function initLoad() {
 
 
 $(document).ready(function () {
-    //To ensure parameters sent to the controler don't include %20%25
+    //To ensure parameters sent to the controler are not encoded URLs (%20...)
     $.ajaxSettings.traditional = true;
 
     window.setTimeout(initLoad, 10);
     $('#complement-wm').trigger("click");
     $('#outputformat').show();
+
+    // Tabulation changes!
+    $('.tab').click(function () {
+        // If click on one of the service tabs
+        // check if the tab is already selected
+        if ($(this).attr('class')==="tab-selected")
+        {
+            //alert('selected tab!');
+            // do nothing - just clicked selected tab
+        }
+        else
+        {
+            //alert('unselected tab!');
+            // deselect other guys
+            $(".tab-selected").addClass("tab-nonselected").removeClass("tab-selected");
+            $(this).addClass("tab-selected").removeClass("tab-nonselected");
+            // make dissapear other tab
+            $(".window").hide();
+            // Find section name to show
+            var sectionname = $(this).attr("id");
+            sectionname = sectionname.substring(4, sectionname.length);
+            // make appear new tab
+            $("#" + sectionname).show();
+            $('#tbox').html = "";
+            $('#TextResponse').hide();
+            // Hide comments for hidden tab
+            $(".backgroundText").hide();
+            // Show comments for selected tab
+            $(".comment-" + sectionname).show();
+        }
+    });
 
     $('.tableLabel').click(function () {
         // Toggle regions selected
@@ -47,6 +78,8 @@ $(document).ready(function () {
         calculateComp = true;
         $('#outputformat').children().remove();
         $('#outputformat').append(optComp1, optComp2, optBoth1, optBoth2, optBoth3, optBoth4);
+        $('#summarize-wm').attr('disabled', 'disabled');
+        $('#summarize-wm').prop('checked', false);
     });
 
     // Hide relevant menu options when non complement mode selected
@@ -54,6 +87,24 @@ $(document).ready(function () {
         calculateComp = false;
         $('#outputformat').children().remove();
         $('#outputformat').append(optNComp1, optNComp2, optBoth1, optBoth2, optBoth3, optBoth4);
+        $('#summarize-wm').removeAttr('disabled');
+        //$('#summarize-wm').show();
+    });
+
+    $('.neverTouched').focus(function () {
+        // check if box has been checked
+        if ($(this).hasClass("neverTouched")) {
+            // clear text content
+            $(this).val("");
+            $(this).removeClass("neverTouched");
+        }
+    });
+
+    $('#searchedIP').keypress(function (e) {
+        if (e.keyCode == 13)
+        {
+            $('#findPrefix').click();
+        }
     });
 
     //Check all regions if clicked
@@ -92,6 +143,8 @@ $(document).ready(function () {
         var Outputformat = $('#outputformat').find('option:selected').val();
         var Region = $('input[name=region]:checked').map(function () { return this.value; }).get();
         var O365svc = $('input[name=o365service]:checked').map(function () { return this.value; }).get();
+        var Summarize = $('#summarize-wm').prop('checked');
+
         // if at least 1 region is selected
         if (Region.length > 0 || O365svc.length > 0) {
             $('#tbox').html("Loading...");
@@ -103,22 +156,42 @@ $(document).ready(function () {
                     $('#IPRangeStats').text("Number of prefixes found ... : ");
                     break;
             }
+            $('#IPRangeStats').show();
             $('#TextResponse').show(500);
+            $('#tbox').height(300);
             // show button to hide content
             $('#hideContentButton').show();
-            $.get(Controller, { command: Command, outputformat: Outputformat, region: Region, o365service: O365svc, complement: calculateComp }, function (responseTxt, statusTxt, xhr) {
+            $.get(Controller, { command: Command, outputformat: Outputformat, region: Region, o365service: O365svc, complement: calculateComp, summarize: Summarize }, function (responseTxt, statusTxt, xhr) {
                 if (statusTxt === "success") {
                     $('#IPRangeStats').append(xhr.responseJSON["count"]);
                     $("#tbox").html(xhr.responseJSON["encodedResultString"]);
                 }
                 if (statusTxt === "Error")
-                    $("#tbox").html("Error fetching the data!" + xhr.statusTxt);
+                    $("#tbox").html("Error fetching the data! " + xhr.statusTxt);
             });
         }
         else
             alert("No Region or Office 365 Service Selected.");
     });
 
+    $('#findPrefix').click(function () {
+        var Controller = 'api/FindPrefix';
+        var InputIP = $("#searchedIP").val();
+        $('#TextResponse').show(500);
+        $('#IPRangeStats').hide();
+        $("#tbox").height(100);
+        $('#tbox').show();
+        $('#tbox').html("Fetching...");
+        $.get(Controller, { inputIP: InputIP }, function (responseTxt, statusTxt, xhr) {
+            if (statusTxt === "success") {
+                $('#tbox').html(xhr.responseJSON[0]);
+            }
+            if (statusTxt === "Error") {
+                $('#tbox').html("Error fetching the data! " + hhr.statusTxt);
+            }
+        });
+
+    });
     //DownloadButton - code to be removed
     //$('#downloadContentButton').click(function () {
     //    var Controller = 'download';

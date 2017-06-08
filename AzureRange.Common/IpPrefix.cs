@@ -38,7 +38,7 @@ namespace AzureRange
         public IPPrefix(IpPrefixType type, string RegionOrO365Service, string pStrRawPrefix)
         {
             Type = type;
-            if (type == IpPrefixType.Azure || type == IpPrefixType.AzureChina)
+            if (type == IpPrefixType.Azure || type == IpPrefixType.AzureChina || type == IpPrefixType.AzureGermany)
             {
                 Region = RegionOrO365Service;
                 O365Service = null;
@@ -64,16 +64,13 @@ namespace AzureRange
             subnetDecimal += (UInt32)Convert.ToInt32(subnetParts[3]);
             FirstIP = subnetDecimal;
         }
-
         public IpPrefixType Type { get; set; }
-
         public string O365Service { get; set; }
         public string Region { get; set; }
         public string RawPrefix { get; set; }
         public string RawPrefixSubnet { get; set; }
         public UInt32 FirstIP { get; set; }
         public int Mask { get; set; }
-
         public UInt32 LastIP
         {
             get
@@ -81,7 +78,6 @@ namespace AzureRange
                 return FirstIP + (UInt32)Math.Pow(2, (32 - Mask)) - 1;
             }
         }
-
         public string ReadableLastIP
         {
             get
@@ -89,7 +85,6 @@ namespace AzureRange
                 return IPAddress.Parse(LastIP.ToString()).ToString();
             }
         }
-
         public string ReadableMask
         {
             get
@@ -99,7 +94,6 @@ namespace AzureRange
                 return IPAddress.Parse(mask.ToString()).ToString();
             }
         }
-
         public string ReadableIP
         {
             get
@@ -111,17 +105,14 @@ namespace AzureRange
         {
             return ReadableIP + "/" + Mask;
         }
-
         public string ToStringLongMask()
         {
             return ReadableIP + " " + ReadableMask;
         }
-
         public bool Equals(IPPrefix other)
         {
             return other.FirstIP.Equals(this.FirstIP) && other.Mask.Equals(this.Mask);
         }
-
         public object Clone()
         {
             return MemberwiseClone();

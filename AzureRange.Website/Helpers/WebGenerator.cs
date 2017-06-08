@@ -1,5 +1,7 @@
 ﻿using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
+using System.Security.Cryptography;
+using System.Text;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -21,13 +23,10 @@ namespace AzureRange.Website
             ipPPrefixesInput.Add(new IPPrefix("224.0.0.0/3"));
             return ipPPrefixesInput;
         }
-
         public WebGenerator()
         {
             _telemetry = new Microsoft.ApplicationInsights.TelemetryClient();
         }
-        
-
         public List<IPPrefix> CachedList
         {
             get
@@ -36,9 +35,10 @@ namespace AzureRange.Website
                     return _localList;
 
                 var jsonIpPrefixList = string.Empty;
-
+                
+                // Validate if ranges already exists and is recent enough (should be updated by WebJob)
                 var filepath = Path.GetTempPath() + "\\ranges.txt";
-                if (File.Exists(filepath) && (DateTime.Now - File.GetCreationTime(filepath)).TotalHours < 8)
+                if (File.Exists(filepath) && (DateTime.Now - File.GetLastWriteTime(filepath)).TotalHours < 1)
                     jsonIpPrefixList = File.ReadAllText(filepath);
 
                 if (!string.IsNullOrEmpty(jsonIpPrefixList))
@@ -63,40 +63,29 @@ namespace AzureRange.Website
                 _localList = value;
             }
         }
-        public List<AzureRegion> GetRegions()
-        {
-            var jsonRegion = string.Empty;
-            List<AzureRegion> azureRegion = new List<AzureRegion>();
-            
-            var filepath = Path.GetTempPath() + "\\AzureRegions.txt";
-
-            if (File.Exists(filepath) && (DateTime.Now - File.GetCreationTime(filepath)).TotalHours < 8)
-                jsonRegion = File.ReadAllText(filepath);
-
-            if (!string.IsNullOrEmpty(jsonRegion))
-            {
-                azureRegion = JsonConvert.DeserializeObject<List<AzureRegion>>(jsonRegion);
-            }
-            else
-            {
-                var regionList = CachedList.Select(f => f.Region).Where(f => !string.IsNullOrWhiteSpace(f)).Distinct().OrderBy(t => t).ToList();
-                var regionManager = new RegionAndO365ServiceManager();
-                azureRegion = regionManager.GetAzureRegions(regionList);
-                
-                File.WriteAllText(filepath, JsonConvert.SerializeObject(azureRegion));
-
-            }
-            return azureRegion;
-        }
-
-        public List<IPPrefix> GetPrefixList(List<string> regionsAndO365Service, bool complement)
+        public List<IPPrefix> GetPrefixList(List<string> regionsAndO365Service, bool complement, bool summarize)
         {
             var stopWatch = Stopwatch.StartNew();
 
+            #region TempFileNameGeneration
+
+            // create string of all regions and O365 services to hash
+            var unhashedfilename = string.Join(".", regionsAndO365Service.ToArray()) + complement.ToString() + summarize.ToString() + ".txt";
+            // hash it - otherwise temp file name too long
+            var sha256 = new SHA256CryptoServiceProvider();
+            var hashedfilename = new StringBuilder();
+            byte[] byte_hashedfilename = sha256.ComputeHash(Encoding.UTF8.GetBytes(unhashedfilename), 0, Encoding.UTF8.GetByteCount(unhashedfilename));
+
+            foreach (byte theByte in byte_hashedfilename)
+            {
+                hashedfilename.Append(theByte.ToString("x2"));
+            }
+            var filepath = Path.GetTempPath() + hashedfilename.ToString() + ".txt";
+
+            #endregion TempFileNameGeneration
+            
             var cachedResult = string.Empty;
             List<IPPrefix> result = null;
-
-            var filepath = Path.GetTempPath() + string.Join(".",regionsAndO365Service.ToArray()) + complement.ToString() + ".txt";
 
             if (File.Exists(filepath) && (DateTime.Now - File.GetCreationTime(filepath)).TotalHours < 8)
                 cachedResult = File.ReadAllText(filepath);
@@ -106,7 +95,7 @@ namespace AzureRange.Website
                 result = JsonConvert.DeserializeObject<List<IPPrefix>>(cachedResult);
             }
             else
-            { 
+            {
                 var localList = (List<IPPrefix>)CachedList.Clone();
 
                 localList.RemoveAll(m => !regionsAndO365Service.Contains(m.Region) && !regionsAndO365Service.Contains(m.O365Service));
@@ -130,18 +119,49 @@ namespace AzureRange.Website
                     _telemetry.TrackMetric("GenerateNoComplement", stopWatch.Elapsed.TotalMilliseconds);
                 }
 
+                // Do we summarize?
+                if (summarize)
+                {
+                    _telemetry.TrackMetric("GenerateSummarized", stopWatch.Elapsed.TotalMilliseconds);
+                    result = Generator.Summarize(result);
+                }
+
                 File.WriteAllText(filepath, JsonConvert.SerializeObject(result));
             }
             return result;
         }
+        public List<AzureRegion> GetRegions()
+        {
+            var jsonRegion = string.Empty;
+            List<AzureRegion> azureRegion = new List<AzureRegion>();
+            
+            var filepath = Path.GetTempPath() + "\\AzureRegions.txt";
 
+            if (File.Exists(filepath) && (DateTime.Now - File.GetLastWriteTime(filepath)).TotalHours < 1)
+                jsonRegion = File.ReadAllText(filepath);
+
+            if (!string.IsNullOrEmpty(jsonRegion))
+            {
+                azureRegion = JsonConvert.DeserializeObject<List<AzureRegion>>(jsonRegion);
+            }
+            else
+            {
+                var regionList = CachedList.Select(f => f.Region).Where(f => !string.IsNullOrWhiteSpace(f)).Distinct().OrderBy(t => t).ToList();
+                var regionManager = new RegionAndO365ServiceManager();
+                azureRegion = regionManager.GetAzureRegions(regionList);
+                
+                File.WriteAllText(filepath, JsonConvert.SerializeObject(azureRegion));
+
+            }
+            return azureRegion;
+        }
         public List<O365Service> GetO365Services()
         {
             var filepath = Path.GetTempPath() + "\\O365Services.txt";
             var jsonO365Service = string.Empty;
             List<O365Service> o365Services = new List<O365Service>();
 
-            if (File.Exists(filepath) && (DateTime.Now - File.GetCreationTime(filepath)).TotalHours < 8)
+            if (File.Exists(filepath) && (DateTime.Now - File.GetLastWriteTime(filepath)).TotalHours < 1)
             {
                 jsonO365Service = File.ReadAllText(filepath);
             }
@@ -160,5 +180,8 @@ namespace AzureRange.Website
             }
             return o365Services;
         }
+
+
+
     }
 }

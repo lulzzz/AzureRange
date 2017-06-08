@@ -59,7 +59,7 @@ ip access-list extended AzurePublicServicesACL
 ";
         #endregion
 
-        internal static string Generate(string[] regions, string[] o365services, string outputformat, bool complement, out int resultCount)
+        internal static string Generate(string[] regions, string[] o365services, string outputformat, bool complement, bool summarize, out int resultCount)
         {
             var resultString = string.Empty;
             resultCount = 0;
@@ -75,7 +75,7 @@ ip access-list extended AzurePublicServicesACL
                 // Add o365 services to the array
                 Array.Copy(o365services, 0, regionsAndServices, regions == null ? 0 : regions.Length, o365services.Length);
             
-            var result = webGen.GetPrefixList(regionsAndServices.ToList(), complement);
+            var result = webGen.GetPrefixList(regionsAndServices.ToList(), complement, summarize);
 
             resultCount = result.Count();
 

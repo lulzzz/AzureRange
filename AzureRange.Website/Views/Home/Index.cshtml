@@ -10,125 +10,121 @@
     <div id="headerAndLogo">
         <img id="logo" src="~/Content/shield_100.png" />
         <h1>Azure Range</h1>
-        <b>BETA @ViewData["AppVersion"]</b> - Do not use on production equipment unless you understand the consequences.
+        <b>BETA @ViewData["AppVersion"]</b> - This is BETA software. Processed IPV4 prefixes from these files :<br />
         <p>
-            @*Processed <b>@(((List<IPPrefix>)ViewData["IPPrefixInput"]).Count())</b>
-            IPv4 prefixes from <a target="_blank" href="https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653">
-                Microsoft Azure Datacenter IP Prefixes
-            </a>.<br />*@
-            Processed IPV4 prefixes from <a target="_blank" href="https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653">
-            Microsoft Azure Datacenter IP Prefixes</a>.<br/>
+            <a target="_blank" href="https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653">Microsoft Azure Datacenter IP Prefixes - Commercial Cloud</a><br/>
+            <a target="_blank" href="https://www.microsoft.com/en-ca/download/confirmation.aspx?id=42064">Microsoft Azure Datacenter IP Prefixes - China</a><br />
+            <a target="_blank" href="https://www.microsoft.com/en-us/download/confirmation.aspx?id=54770">Microsoft Azure Datacenter IP Prefixes - Germany</a><br />
+            <a target="_blank" href="http://go.microsoft.com/fwlink/?LinkId=533185">Office 365 services</a> (see supporting document <a href="http://aka.ms/o365ip">here</a>)<br />
 
-    @*Found <b>@Model.Count</b> complementary subnets, which is
-    @if (Model.Count <= 4000)
-            {
-        <span>less than 4000 routes: a <u>Standard</u> ER Circuit is sufficient.</span>
-    }
-    else
-    {
-        <span>more than 4000 routes: requires a <u>Premium</u> ER Circuit.</span>
-    }<br />*@
-    Source code can be found on <a href="https://github.com/fchapleau/AzureRange">GitHub</a>.
-</p>
+            Source code can be found on <a href="https://github.com/omartin2010/AzureRange">GitHub</a>.
+        </p>
     </div>
-    <form action="/Download/">
+    
+        <br /><br />
+
 
         <div id="generation">
-        <div id="geographyandserviceselection">
-            @foreach (var geography in regions.Select(r => r.Geography).Distinct().OrderBy(g => g))
-            {
-                <div class="geography">
-                    @*<div class="tableLabel"><input id="chk-@geography" type="checkbox" />&nbsp;@geography</div>*@
-                    <div><span class="tableLabel" chked="false">@geography</span>
-                        @foreach (var region in regions.Where(r => r.Geography == geography).OrderBy(r => r.Name))
-                        {
-                            <div class="region">
-                                <label>
-                                    <input type="checkbox" name="region" value="@region.Id" />&nbsp;@region.Name
-                                </label>
-                            </div>
-                        }
-                    </div>
-                </div>
-            }
-            <div class="o365service">
-                <div class="tableLabel">Office 365 Services</div>
-                @foreach (var service in o365services.OrderBy(svc => svc.Name)) 
-                {
-                    <div class="region">
-                        <label>
-                            <input type="checkbox" name="o365service" value="@service.Id" />&nbsp;@service.Name
-                        </label>
-                    </div>
-                }
+        <div id="tabssection">
+            <div class="tab tab-selected" id="tab-geographyandserviceselection">
+                <span>Prefix List Tools</span>
             </div>
-
-            <div id="special-select">
-                <button id="checkAllregion" type = "button">Check All Regions</button>
-                <button id="uncheckAllregion" type = "button">Uncheck All Regions</button>
-                <button id="checkAllO365" type = "button">Check All O365</button>
-                <button id="uncheckAllO365" type = "button">Uncheck All O365</button>
-            </div>
-            <div class="outputformat">
-                <div id="working-mode" class="radiobutton">
-                    <input type="radio" id="non-complement-wm" name="working-mode" checked/>Generate Prefix List<br />
-                    <input type="radio" id="complement-wm" name="working-mode" />Generate Complement Prefix List<br />
-                </div>
-                <div class="outputformatlist">
-                    Output format:
-                    <select id="outputformat" name="outputformat" style="width:220px" hidden></select>
-                </div>
-            </div>
-            <div class="calculatebuttons">
-                <input type="submit" value="Download Output" />
-                <button id="showContentButton" type = "button">Display Output</button>
-                <button id="hideContentButton" type = "button" hidden>Hide Results</button>
+            <div class="tab tab-nonselected" id="tab-prefixsearchtool">
+                <span>Prefix Search Tools</span>
             </div>
         </div>
+            <form action="/Download/">
+                <div class="window" id="geographyandserviceselection">
+                    @foreach (var geography in regions.Select(r => r.Geography).Distinct().OrderBy(g => g))
+            {
+                        <div class="geography">
+                            @*<div class="tableLabel"><input id="chk-@geography" type="checkbox" />&nbsp;@geography</div>*@
+                            <div>
+                                <span class="tableLabel" chked="false">@geography</span>
+                                @foreach (var region in regions.Where(r => r.Geography == geography).OrderBy(r => r.Name))
+                        {
+                                    <div class="region">
+                                        <label>
+                                            <input type="checkbox" name="region" value="@region.Id" />&nbsp;@region.Name
+                                        </label>
+                                    </div>
+                        }
+                            </div>
+                        </div>
+            }
+                    <div class="o365service">
+                        <div class="tableLabel">Office 365 Services</div>
+                        @foreach (var service in o365services.OrderBy(svc => svc.Name))
+                {
+                            <div class="region">
+                                <label>
+                                    <input type="checkbox" name="o365service" value="@service.Id" />&nbsp;@service.Name
+                                </label>
+                            </div>
+                }
+                    </div>
 
+                    <div id="special-select">
+                        <button id="checkAllregion" type="button">Check All Regions</button>
+                        <button id="uncheckAllregion" type="button">Uncheck All Regions</button>
+                        <button id="checkAllO365" type="button">Check All O365</button>
+                        <button id="uncheckAllO365" type="button">Uncheck All O365</button>
+                    </div>
+                    <div class="outputformat">
+                        <div id="working-mode" class="radiobutton">
+                            <input type="radio" id="non-complement-wm" name="complement" checked />Generate Prefix List<br />
+                            <input type="radio" id="complement-wm" name="complement" />Generate Complement Prefix List<br />
+                        </div>
+                        <div class="outputformatlist">
+                            Output format:
+                            <select id="outputformat" name="outputformat" style="width:220px" hidden></select>
+                        </div>
+                        <div class="checkbox">
+                            <input type="checkbox" id="summarize-wm" name="summarize" />Summarize Prefix List<br />
+                        </div>
+                    </div>
+                    <div class="calculatebuttons">
+                        <input type="submit" value="Download Output" />
+                        <button id="showContentButton" type="button">Display Output</button>
+                        <button id="hideContentButton" type="button" hidden>Hide Results</button>
+                    </div>
+                </div>
+            </form>
+        <div id="prefixsearchtool" class="window" hidden>
+            <input id="searchedIP" type="text" value="enter hostname or IP" size="100" class="neverTouched" />
+            <button id="findPrefix" type="button">Find</button>
+        </div>
         <p></p>
     </div>
-    </form>
     <div id="TextResponse" hidden>
         <p></p>
         <p id="IPRangeStats">...</p>
         @*<textarea id="tbox" style="width:100%;max-width:inherit;height:300px">Loading...</textarea>*@
         <textarea id="tbox">Loading...</textarea>
     </div>
-    <div id="backgroundText" class="backgroundText">
+    <div id="backgroundText" class="backgroundText comment-geographyandserviceselection">
         <h3>Background</h3>
         <p style="margin-left:50px">
-            Often because of security reasons, many customers choose to enable « forced tunneling » when it comes to ExpressRoute
-            configuration because they wish to have all traffic that isn’t destined to the local VNet resources to be inspected by
-            their local on premise gear, appliances or devices.
-        </p>
+            This API can allow you to retrieve (programatically or using this page) to retrieve IP prefixes in Azure and for Office 365.
+            The IP address space for Azure represents the IPs that get advertised over ExpressRoute's public peering, whereas the IPs
+            for Office 365 do not represent necessarily all the IPs advertised over ExpressRoute's Microsoft peering but some. See more
+            <a href="http://aka.ms/o365ip">here</a>.            
+        
+        <h3>Prefix list or Complement Prefix List?</h3>
         <p style="margin-left:50px">
-            Enabling forced tunneling allows customer to do just that, but that includes all traffic, <u>
-                including traffic that is
-                destined to Azure Public resources, including but not limited to, SQL Azure or other Azure public resources
-            </u>.
-        </p>
-
-        <h3>Solution</h3>
-        <p style="margin-left:50px">
-            While not the only possible solution, one solution is to do a “selective” forced tunneling, meaning that not ALL traffic
-            is being redirected towards on premise but only traffic that isn’t destined to the resources required by the applications
-            on the VNet.
+            Prefix list is what it is. Try and see. Complement Prefix are interesting in that the represent what's "not" the prefix itself.
+            For instance, if you have a list with only one prefix of 10.0.0.0/8, the complement would be : <br />
+                0.0.0.0/6 (covering from 0.0.0.0 to 7.255.255.255)<br />
+                8.0.0.0/7 (covering from 8.0.0.0 to 9.255.255.255)<br />
+                11.0.0.0/8 (covering from 11.0.0.0 to 11.255.255.255)<br />
+                12.0.0.0/6 (covering from 12.0.0.0 to 15.255.255.255)<br /><br />
         </p>
 
         <h3>Details</h3>
         <p style="margin-left:50px">
             Advertising 0.0.0.0/0 on the BGP sessions with the Microsoft Enterprise Edge routers achieves the forced tunneling.
-            To ensure that not all (a.k.a. 0.0.0.0/0) traffic is sent back on premise, you need to find which prefixes need to be
-            routed back on premise (instead of 0.0.0.0/0) and that list needs to exclude the prefixes you want to keep for local
-            routing “in the cloud”.
-        </p>
-
-        <h3>Implementation</h3>
-        <p style="margin-left:50px">
-            How you implement that is highly dependent on your telecommunication equipment but a sample below describes one way of
-            achieving it using Cisco routers, and as of today, we exclude ALL public IPs that Microsoft uses in their datacenters
-            (as based on the list that you can download <a href="https://www.microsoft.com/en-ca/download/confirmation.aspx?id=41653">here</a>).
+            To ensure that not all (a.k.a. 0.0.0.0/0) traffic is sent back on premise and what is meant for the Azure Datacenter
+            to stay in Azure, you would advertise the Complement Prefixes. That keeps the cloud in the cloud.
         </p>
 
         <h3>Disclaimer</h3>
@@ -140,34 +136,23 @@
             </b>
         </p>
     </div>
-    <div id="samplecode" class="backgroundText">
-        <h3>Sample Code (Cisco IOS)</h3>
+    <div id="backgroundText" class="backgroundText comment-prefixsearchtool" hidden>
+        <h3>Background</h3>
         <p style="margin-left:50px">
-            Inside a Cisco router peering with MSEE routers, you <b>could</b> have a configuration similar to :
+            This allows you to find where a prefix, if it's in Azure or in Office 365. If it exists in an Azure datacenter, you will
+            see the region. If it's an IP used for Office 365, you will see the service in question. It is possible it's in use for
+            Office 365 and that it's also in an Azure Datacenter.<br />
+            It is not possible to use CIDR notation (1.2.3.4/32) to look for a subnet, we're expecting an IP to be in the box.
         </p>
-        <div id="routes" style="margin-left:50px">
-            <code>
-                router bgp &lt;<i>YOUR ASN</i>&gt;<br />
-                &nbsp;bgp log-neighbor-changes<br />
-                &nbsp;neighbor &lt;<i>PRIVATE_PEERING_EXPRESSROUTE_IP</i>&gt; remote-as 12076 ! ASN for ExpressRoute = 12076<br />
-                &nbsp;!<br />
-                &nbsp;address-family ipv4<br />
-                &nbsp;&nbsp;<b>redistribute static</b> ! <b>this is one way to inject the networks below</b><br />
-                &nbsp;&nbsp;neighbor &lt;<i>PRIVATE_PEERING_EXPRESSROUTE_IP</i>&gt; activate<br />
-                &nbsp;&nbsp;no auto-summary<br />
-                &nbsp;&nbsp;no synchronization<br />
-                &nbsp;exit-address-family<br />
-                !<br />
-                ip route 1.0.0.0 255.0.0.0 null0<br />
-                ip route 2.0.0.0 254.0.0.0 null0<br />
-                ip route 4.0.0.0 252.0.0.0 null0<br />
-                ip route 8.0.0.0 254.0.0.0 null0<br />
-                ip route 11.0.0.0 255.0.0.0 null0<br />
-                ip route 12.0.0.0 255.0.0.0 null0<br />
-                ip route 13.0.0.0 255.192.0.0 null0<br />
-                [ etc... ]<br />
-            </code>
-        </div>
+
+        <h3>Disclaimer</h3>
+        <p style="margin-left:50px">
+            <b>
+                Use at your own risks. Using this should not break anything. What you do with the information you retrieve is up to 
+                you ;-). The authors provide no guarantee on that code, implicit or explicit and aren't liable for any consequence,
+                including loss of productivity, profits, etc.
+            </b>
+        </p>
     </div>
 
 </div>

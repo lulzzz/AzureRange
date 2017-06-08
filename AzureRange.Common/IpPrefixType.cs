@@ -10,6 +10,7 @@ namespace AzureRange
     {
         Azure,
         AzureChina,
+        AzureGermany,
         Office365
     }
 }

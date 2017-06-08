@@ -35,12 +35,38 @@ textarea {
     background-color:lightblue;
 }
 
-#geographyandserviceselection{
+#tabssection {
+    text-align: left;
+    margin-left: 140px;
+    width: 700px;
+}
+
+.tab {
+    padding: 5px;
     border: 1px solid black;
-    text-align:center;
-    width: 700px;    
+    border-bottom: none;
+    width: 180px;
+    display: inline-block;
+}
+.tab-nonselected {
+    background-color: darkgray;
+}
+
+.tab-selected {
+    background-color: none;
+    font-weight: bold;
+}
+
+.window {
+    border: 1px solid black;
+    text-align: center;
+    width: 700px;
     padding: 10px;
     margin-left: 140px;
+}
+
+#prefixsearchtool {
+    text-align:left;
 }
 
 .o365service{
@@ -87,6 +113,15 @@ label { font-weight: normal; font-size: 12px}
     display:inline-block;
     vertical-align:central;
 }
+
+.checkbox {
+    text-align: left;
+    width: 320px;
+    margin-left:+27px;
+    /*display: inline-block;*/
+    vertical-align: top;
+}
+
 
 .calculatebuttons{
     /*width:330px;*/
